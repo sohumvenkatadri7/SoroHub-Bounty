@@ -162,7 +162,7 @@ export default function ProfilePage() {
             </div>
           ) : (
             <button
-              onClick={connect}
+              onClick={() => connect().catch(console.error)}
               className="bg-white text-black font-semibold text-sm px-4 py-2 rounded-full hover:bg-slate-200 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)]"
             >
               Connect Wallet
@@ -177,7 +177,7 @@ export default function ProfilePage() {
           <div className="flex flex-col items-center justify-center h-64 text-center">
             <h2 className="text-2xl font-bold text-white mb-4">Connect Wallet to view Profile</h2>
             <button
-              onClick={connect}
+              onClick={() => connect().catch(console.error)}
               className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm px-8 py-3 rounded-lg transition-colors shadow-[0_0_15px_rgba(99,102,241,0.2)]"
             >
               Connect Wallet

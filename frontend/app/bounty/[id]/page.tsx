@@ -78,6 +78,7 @@ export default function BountyDetailPage() {
           setBounty({
             ...data,
             id: bountyId,
+            description: data.description || "No detailed description provided for this bounty.",
             requirements: data.requirements || [
               "Fulfill all specifications described in the issue context.",
               "Ensure code builds successfully on Soroban Testnet.",
@@ -491,7 +492,7 @@ export default function BountyDetailPage() {
                 {!address ? (
                   <button 
                     className="w-full bg-zinc-100 hover:bg-white text-black font-semibold text-sm px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
-                    onClick={connect}
+                    onClick={() => connect().catch(console.error)}
                   >
                     Connect Wallet to Apply
                   </button>

@@ -10,7 +10,7 @@ import { AlbedoModule } from "@creit.tech/stellar-wallets-kit/modules/albedo";
 interface WalletContextType {
   address: string | null;
   kit: typeof StellarWalletsKit | null;
-  connect: () => Promise<void>;
+  connect: () => Promise<boolean>;
   disconnect: () => void;
 }
 
@@ -36,17 +36,19 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
   const connect = async () => {
     if (!kitInitialized) {
       console.error("Wallet kit not initialized yet.");
-      return;
+      return false;
     }
     
     try {
       // SWK v2 authModal handles both wallet selection and returning the connected address
       const { address: publicKey } = await StellarWalletsKit.authModal();
-      console.log("Successfully connected:", publicKey);
       setAddress(publicKey);
-      router.push("/dashboard");
-    } catch (error) {
-      console.error("Modal connection error:", error);
+      return true;
+    } catch (error: any) {
+      // The modal throws errors on user cancellation or if the extension is not installed.
+      // We return false cleanly to prevent unhandled promise rejections.
+      console.log("Wallet connection cancelled or failed:", error?.message || error);
+      return false;
     }
   };
 

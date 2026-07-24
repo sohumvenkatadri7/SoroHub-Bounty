@@ -128,7 +128,7 @@ export default function CreateBountyPage() {
               </button>
             </div>
           ) : (
-            <button onClick={connect} className="bg-white text-black font-semibold text-sm px-4 py-2 rounded-full hover:bg-slate-200 transition-colors">
+            <button onClick={() => connect().catch(console.error)} className="bg-white text-black font-semibold text-sm px-4 py-2 rounded-full hover:bg-slate-200 transition-colors">
               Connect Wallet
             </button>
           )}

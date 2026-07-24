@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useWallet } from "@/components/WalletProvider";
 
@@ -8,11 +8,43 @@ export default function LandingPage() {
   const router = useRouter();
   const { address, connect } = useWallet();
   const [connecting, setConnecting] = useState(false);
+  const [bounties, setBounties] = useState<any[]>([]);
+
+  useEffect(() => {
+    let unsubscribe: () => void;
+    async function fetchBounties() {
+      try {
+        const { db } = await import("@/utils/firebase");
+        const { collection, onSnapshot, query } = await import("firebase/firestore");
+        
+        const q = query(collection(db, "bounties"));
+        unsubscribe = onSnapshot(q, (snapshot) => {
+          const fetched = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          // sort descending by ID
+          fetched.sort((a, b) => {
+             const numA = parseInt(a.id.replace(/\D/g, "")) || 0;
+             const numB = parseInt(b.id.replace(/\D/g, "")) || 0;
+             return numB - numA;
+          });
+          setBounties(fetched);
+        });
+      } catch (err) {
+        console.error("Failed to fetch bounties:", err);
+      }
+    }
+    fetchBounties();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
 
   const handleConnectWallet = async () => {
     setConnecting(true);
     try {
-      await connect();
+      const success = await connect();
+      if (success) {
+        router.push("/dashboard");
+      }
     } catch (err) {
       console.error("Wallet connection error:", err);
     } finally {
@@ -95,64 +127,58 @@ export default function LandingPage() {
           </button>
         </div>
 
-        {/* Floating UI Hero Graphic */}
-        <div className="relative w-full max-w-4xl h-[400px] sm:h-[500px] mt-10 perspective-[1000px] hidden md:block">
-          <div className="absolute inset-0 bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none" />
-          
-          {/* Main Dashboard Mockup */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[450px] bg-[#09090b] border border-white/10 rounded-2xl shadow-2xl overflow-hidden transform rotate-x-[15deg] scale-100 origin-top opacity-90 backdrop-blur-xl">
-            {/* Fake Dashboard Header */}
-            <div className="h-12 border-b border-white/5 flex items-center px-4 gap-2 bg-white/[0.02]">
-              <div className="w-3 h-3 rounded-full bg-rose-500/50" />
-              <div className="w-3 h-3 rounded-full bg-amber-500/50" />
-              <div className="w-3 h-3 rounded-full bg-emerald-500/50" />
-              <div className="ml-4 h-4 w-32 bg-white/5 rounded" />
+        {/* Live Bounties Section */}
+        <div className="w-full max-w-5xl mt-16 mb-10 relative z-20 text-left">
+          <div className="flex items-center justify-between mb-6 px-2">
+            <h2 className="text-2xl font-bold text-white tracking-tight">Active Bounties</h2>
+            <div 
+              onClick={() => router.push("/dashboard")}
+              className="text-indigo-400 hover:text-indigo-300 text-sm font-semibold cursor-pointer transition-colors flex items-center gap-1 group"
+            >
+              View All
+              <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             </div>
-            {/* Fake Dashboard Content */}
-            <div className="p-6 grid grid-cols-3 gap-6">
-              <div className="col-span-2 space-y-4">
-                <div className="h-8 w-48 bg-white/10 rounded-lg" />
-                <div className="space-y-2">
-                  <div className="h-20 w-full bg-white/5 rounded-xl border border-white/5" />
-                  <div className="h-20 w-full bg-white/5 rounded-xl border border-white/5" />
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {bounties.slice(0, 6).map((bounty, i) => (
+              <div 
+                key={bounty.id || i}
+                onClick={() => router.push(`/bounty/${bounty.id}`)}
+                className="bg-white/[0.02] border border-white/10 rounded-2xl p-5 hover:border-indigo-500/50 hover:bg-white/[0.04] transition-all cursor-pointer group flex flex-col justify-between min-h-[160px] backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.2)] hover:shadow-[0_4px_30px_rgba(99,102,241,0.15)] hover:-translate-y-1"
+              >
+                <div>
+                  <div className="flex justify-between items-start mb-3">
+                    <span className="text-xs font-mono font-medium text-zinc-500 bg-white/5 px-2 py-0.5 rounded border border-white/5">#{bounty.id}</span>
+                    {bounty.status === "open" ? (
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-emerald-400 bg-emerald-400/10 px-2.5 py-1 rounded border border-emerald-400/20">Open</span>
+                    ) : bounty.status === "completed" ? (
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-purple-400 bg-purple-400/10 px-2.5 py-1 rounded border border-purple-400/20">Completed</span>
+                    ) : (
+                      <span className="text-[10px] uppercase tracking-wider font-bold text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded border border-amber-400/20">In Progress</span>
+                    )}
+                  </div>
+                  <h3 className="font-semibold text-white text-base leading-snug group-hover:text-indigo-400 transition-colors line-clamp-2">
+                    {bounty.title}
+                  </h3>
+                </div>
+                <div className="mt-4 flex items-end justify-between">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs text-zinc-500">{bounty.repo}</span>
+                  </div>
+                  <div className="text-lg font-bold text-white flex items-baseline gap-1.5">
+                    {bounty.rewardAmount} <span className="text-xs text-zinc-500 font-medium">{bounty.asset}</span>
+                  </div>
                 </div>
               </div>
-              <div className="space-y-4">
-                <div className="h-32 w-full bg-indigo-500/10 border border-indigo-500/20 rounded-xl" />
-                <div className="h-48 w-full bg-white/5 rounded-xl border border-white/5" />
+            ))}
+            
+            {bounties.length === 0 && (
+              <div className="col-span-1 md:col-span-2 lg:col-span-3 bg-white/5 border border-white/10 rounded-2xl p-8 text-center flex flex-col items-center justify-center">
+                <svg className="w-10 h-10 text-zinc-600 mb-3 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                <p className="text-zinc-400 font-medium text-sm">Fetching bounties from network...</p>
               </div>
-            </div>
-          </div>
-
-          {/* Floating XLM Payout Card */}
-          <div className="absolute top-20 -left-10 bg-[#121214] border border-white/10 rounded-xl p-4 shadow-[0_20px_40px_rgba(0,0,0,0.5)] transform -rotate-6 animate-float z-20 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-black border border-white/10 flex items-center justify-center p-2">
-              {/* Stellar Logo */}
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/20Dil/svg" className="w-full h-full text-white">
-                <path d="M12 2L2 12l10 10 10-10L12 2zm0 17.5L4.5 12 12 4.5 19.5 12 12 19.5z" fill="currentColor"/>
-                <path d="M12 7l-5 5 5 5 5-5-5-5z" fill="currentColor"/>
-              </svg>
-            </div>
-            <div className="text-left">
-              <p className="text-xs text-zinc-400 font-medium mb-0.5">Bounty Paid</p>
-              <p className="text-sm font-bold text-white">+1,500 XLM</p>
-            </div>
-          </div>
-
-          {/* Floating USDC Escrow Card */}
-          <div className="absolute top-40 -right-4 bg-[#121214] border border-white/10 rounded-xl p-4 shadow-[0_20px_40px_rgba(0,0,0,0.5)] transform rotate-6 animate-float-delayed z-20 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-[#2775CA]/10 flex items-center justify-center p-1.5">
-              {/* USDC Logo */}
-              <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
-                <path d="M16 32C24.8366 32 32 24.8366 32 16C32 7.16344 24.8366 0 16 0C7.16344 0 0 7.16344 0 16C0 24.8366 7.16344 32 16 32Z" fill="#2775CA"/>
-                <path d="M19.466 11.2335C18.6186 10.6698 17.4339 10.354 16.0353 10.354C13.0649 10.354 11.239 11.8344 11.239 13.9856C11.239 15.6548 12.3551 16.5147 14.733 17.1593L15.6022 17.3976C17.2023 17.834 17.8082 18.2863 17.8082 19.1411C17.8082 20.1634 16.8227 20.892 15.3409 20.892C13.7381 20.892 12.5938 20.1983 11.7588 19.1444L9.58984 21.0366C10.8711 22.7533 12.822 23.6339 15.2285 23.6339C18.5724 23.6339 20.5731 22.0622 20.5731 19.6459C20.5731 17.897 19.4975 16.9248 17.189 16.3275L16.2081 16.0711C14.7865 15.6983 14.1207 15.2677 14.1207 14.4984C14.1207 13.5932 14.9754 12.9866 16.148 12.9866C17.4262 12.9866 18.3975 13.5049 19.0886 14.3407L21.2828 12.4497C20.7303 11.9547 20.1384 11.5546 19.466 11.2335Z" fill="white"/>
-                <path d="M16 27.5C15.2144 27.5 14.562 26.8624 14.562 26.068V23.5137C15.0163 23.597 15.498 23.6427 16 23.6427C16.4952 23.6427 16.9712 23.597 17.419 23.5152V26.068C17.419 26.8624 16.7667 27.5 15.981 27.5H16ZM16 4.5C16.7856 4.5 17.438 5.13757 17.438 5.93196V8.48633C16.9837 8.40305 16.502 8.35732 16 8.35732C15.5048 8.35732 15.0288 8.40305 14.581 8.48481V5.93196C14.581 5.13757 15.2333 4.5 16.019 4.5H16Z" fill="white"/>
-              </svg>
-            </div>
-            <div className="text-left">
-              <p className="text-xs text-zinc-400 font-medium mb-0.5">Escrow Locked</p>
-              <p className="text-sm font-bold text-white">550.00 USDC</p>
-            </div>
+            )}
           </div>
         </div>
 
