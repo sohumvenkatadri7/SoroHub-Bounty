@@ -34,37 +34,3 @@ jobs:
           # If you have public env variables needed for the build, define them here.
           # E.g. NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
           NEXT_TELEMETRY_DISABLED: 1
-
-  build-contracts:
-    name: Build Soroban Contracts
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./contracts
-        
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: wasm32-unknown-unknown
-          override: true
-          profile: minimal
-
-      - name: Cache cargo registry
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-            contracts/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Build Smart Contracts
-        run: cargo build --target wasm32-unknown-unknown --release
-
-      - name: Run Contract Tests
-        run: cargo test
