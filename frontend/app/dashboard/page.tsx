@@ -25,7 +25,7 @@ const MOCK_BOUNTIES: Bounty[] = [];
 export default function DashboardPage() {
   const router = useRouter();
   const { address, kit, connect, disconnect } = useWallet();
-  const [activeTab, setActiveTab] = useState<"All" | "Beginner" | "Intermediate" | "Advanced" | "Manage">("All");
+  const [activeTab, setActiveTab] = useState<"All" | "Beginner" | "Intermediate" | "Advanced" | "My Work" | "Manage">("All");
   
   const [xlmBalance, setXlmBalance] = useState<string>("0.00");
   const [usdcBalance, setUsdcBalance] = useState<string>("0.00");
@@ -120,6 +120,17 @@ export default function DashboardPage() {
           status: "assigned",
           assignedTo: developer
         });
+        
+        const { setDoc, arrayUnion } = await import("firebase/firestore");
+        await setDoc(doc(db, "users", developer), {
+          notifications: arrayUnion({
+            id: Date.now().toString(),
+            message: `You were assigned to: ${bounty.title}`,
+            link: `/bounty/${bounty.id}`,
+            read: false,
+            timestamp: new Date().toISOString()
+          })
+        }, { merge: true });
         alert(`Bounty assigned successfully! Tx: ${result.hash}`);
       }
     } catch (err: any) {
@@ -130,9 +141,11 @@ export default function DashboardPage() {
 
   const filteredBounties = activeTab === "Manage" 
     ? bounties.filter(b => b.funder === address)
-    : activeTab === "All"
-      ? bounties.filter(b => b.status === "open")
-      : bounties.filter(b => b.status === "open" && b.level === activeTab);
+    : activeTab === "My Work"
+      ? bounties.filter(b => b.assignedTo === address || b.applicantList?.includes(address || ""))
+      : activeTab === "All"
+        ? bounties.filter(b => b.status === "open")
+        : bounties.filter(b => b.status === "open" && b.level === activeTab);
 
   return (
     <div className="min-h-screen font-sans bg-[#000000] text-zinc-100 flex flex-col relative selection:bg-indigo-500/30 overflow-hidden">
@@ -145,17 +158,13 @@ export default function DashboardPage() {
       <header className="sticky top-0 z-50 border-b border-white/5 bg-black/60 backdrop-blur-xl px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3 cursor-pointer group" onClick={() => router.push("/")}>
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white text-sm shadow-[0_0_15px_rgba(99,102,241,0.3)] group-hover:shadow-[0_0_20px_rgba(99,102,241,0.5)] transition-all">
-              SH
-            </div>
-            <span className="font-semibold text-lg tracking-tight text-white hidden sm:block">SoroHub</span>
+            <span className="font-semibold text-xl tracking-tight text-white">SoroHub</span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-4 text-sm font-medium text-zinc-400">
-            <span className="text-zinc-100 cursor-pointer">Overview</span>
-            <span className="hover:text-white cursor-pointer transition-colors">Bounties</span>
-            <span className="hover:text-white cursor-pointer transition-colors">Activity</span>
-            <span className="hover:text-white cursor-pointer transition-colors">Settings</span>
+          <div className="hidden sm:flex items-center gap-6 text-sm font-medium text-zinc-400">
+            <span onClick={() => router.push("/")} className="hover:text-white cursor-pointer transition-colors">Overview</span>
+            <span onClick={() => router.push("/dashboard")} className="text-white cursor-pointer transition-colors">Bounties</span>
+            <span onClick={() => router.push("/profile")} className="hover:text-white cursor-pointer transition-colors">Profile</span>
           </div>
         </div>
 
@@ -167,7 +176,10 @@ export default function DashboardPage() {
 
           {address ? (
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full pl-1.5 pr-3 py-1 cursor-pointer hover:bg-white/10 transition-colors">
+              <div 
+                onClick={() => router.push("/profile")}
+                className="flex items-center gap-2 bg-white/10 border border-white/20 rounded-full pl-1.5 pr-3 py-1 cursor-pointer hover:bg-white/20 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.05)]"
+              >
                 <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center">
                   <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                 </div>
@@ -231,7 +243,7 @@ export default function DashboardPage() {
                 Total Earned
               </span>
               <div className="text-3xl font-bold text-white mb-1 flex items-baseline gap-2">
-                0 <span className="text-base text-zinc-500 font-medium">XLM</span>
+                {bounties.filter(b => b.status === "completed").reduce((sum, b) => sum + (parseInt(b.rewardAmount) || 0), 0)} <span className="text-base text-zinc-500 font-medium">XLM</span>
               </div>
             </div>
 
@@ -259,9 +271,11 @@ export default function DashboardPage() {
                 <svg className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 Completed Issues
               </span>
-              <div className="text-3xl font-bold text-white mb-2 relative z-10">0</div>
+              <div className="text-3xl font-bold text-white mb-2 relative z-10">
+                {bounties.filter(b => b.status === "completed").length}
+              </div>
               <div className="text-xs font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 rounded-md w-fit relative z-10">
-                1 Pending Review
+                {bounties.filter(b => b.status === "assigned").length} Pending Review
               </div>
             </div>
 
@@ -319,7 +333,7 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between">
                   <h2 className="text-base font-semibold text-white">Open Bounties</h2>
                   <div className="flex bg-white/5 border border-white/10 rounded-lg p-1">
-                    {(["All", "Beginner", "Intermediate", "Advanced", "Manage"] as const).map((tab) => (
+                    {(["All", "Beginner", "Intermediate", "Advanced", "My Work", "Manage"] as const).map((tab) => (
                       <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
@@ -374,11 +388,17 @@ export default function DashboardPage() {
                             <span className="text-emerald-400">{bounty.level}</span>
                             <span className="w-1 h-1 rounded-full bg-zinc-700" />
                             <span className="text-purple-400">{bounty.category}</span>
-                            {bounty.status && (
-                              <>
-                                <span className="w-1 h-1 rounded-full bg-zinc-700" />
-                                <span className="text-indigo-400 capitalize">{bounty.status}</span>
-                              </>
+                            {bounty.status === "open" && (
+                              <span className="text-[10px] uppercase tracking-wider font-bold text-emerald-400 bg-emerald-400/10 px-2.5 py-1 rounded border border-emerald-400/20 ml-2">Open</span>
+                            )}
+                            {bounty.status === "assigned" && (
+                              <span className="text-[10px] uppercase tracking-wider font-bold text-blue-400 bg-blue-400/10 px-2.5 py-1 rounded border border-blue-400/20 ml-2">In Progress</span>
+                            )}
+                            {bounty.status === "in_review" && (
+                              <span className="text-[10px] uppercase tracking-wider font-bold text-amber-400 bg-amber-400/10 px-2.5 py-1 rounded border border-amber-400/20 ml-2">In Review</span>
+                            )}
+                            {bounty.status === "completed" && (
+                              <span className="text-[10px] uppercase tracking-wider font-bold text-purple-400 bg-purple-400/10 px-2.5 py-1 rounded border border-purple-400/20 ml-2">Completed</span>
                             )}
                           </div>
                         </div>
@@ -401,22 +421,43 @@ export default function DashboardPage() {
                               {bounty.status === "open" && bounty.applicantList && bounty.applicantList.length > 0 && (
                                 <div className="text-xs text-zinc-400">
                                   <div className="font-semibold text-zinc-300 mb-2">Applicants:</div>
-                                  {bounty.applicantList.map((app) => (
-                                    <div key={app} className="flex items-center justify-between bg-black/50 p-2 rounded border border-white/5 mb-1">
-                                      <span className="font-mono">{app.slice(0, 4)}...{app.slice(-4)}</span>
-                                      <button 
-                                        onClick={(e) => { e.stopPropagation(); handleAssign(bounty, app); }}
-                                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-2 py-1 rounded text-[10px] uppercase font-bold"
-                                      >
-                                        Assign
-                                      </button>
-                                    </div>
-                                  ))}
+                                  {bounty.applicantList.map((app) => {
+                                    const profile = bounty.applicantProfiles?.[app] || {};
+                                    return (
+                                      <div key={app} className="flex flex-col bg-black/50 p-2 rounded border border-white/5 mb-1 gap-1.5">
+                                        <div className="flex items-center justify-between">
+                                          <span className="font-mono">{app.slice(0, 4)}...{app.slice(-4)}</span>
+                                          <button 
+                                            onClick={(e) => { e.stopPropagation(); handleAssign(bounty, app); }}
+                                            className="bg-indigo-600 hover:bg-indigo-500 text-white px-2 py-1 rounded text-[10px] uppercase font-bold"
+                                          >
+                                            Assign
+                                          </button>
+                                        </div>
+                                        {(profile.github || profile.portfolio) && (
+                                          <div className="flex items-center gap-2 text-[10px] border-t border-white/5 pt-1 mt-0.5">
+                                            {profile.github && (
+                                              <a href={profile.github} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="text-zinc-400 hover:text-white flex items-center gap-1">
+                                                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/></svg>
+                                                GitHub
+                                              </a>
+                                            )}
+                                            {profile.portfolio && (
+                                              <a href={profile.portfolio} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="text-zinc-400 hover:text-white flex items-center gap-1">
+                                                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                                Portfolio
+                                              </a>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
                                 </div>
                               )}
-                              {bounty.status === "assigned" && (
+                              {(bounty.status === "assigned" || bounty.status === "in_review") && (
                                 <div className="text-xs bg-indigo-500/10 text-indigo-400 px-3 py-2 rounded border border-indigo-500/20 text-center font-medium">
-                                  Assigned to: {bounty.assignedTo?.slice(0,4)}...{bounty.assignedTo?.slice(-4)}
+                                  {bounty.status === "in_review" ? "PR in Review: " : "Assigned to: "}{bounty.assignedTo?.slice(0,4)}...{bounty.assignedTo?.slice(-4)}
                                 </div>
                               )}
                             </div>
@@ -432,31 +473,39 @@ export default function DashboardPage() {
             {/* Right Column: System Logs & Recent Activity */}
             <div className="flex flex-col gap-8">
               
-              {/* Recent Submissions */}
+              {/* Recent Activity */}
               <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                <h2 className="text-base font-semibold text-white mb-6">Recent Submissions</h2>
+                <h2 className="text-base font-semibold text-white mb-6">Recent Activity</h2>
                 <div className="flex flex-col gap-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0 shadow-[0_0_10px_rgba(245,158,11,0.1)]">
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  {bounties.slice(0, 3).map((b) => (
+                    <div key={`activity-${b.id}`} className="flex items-start gap-4">
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${
+                        b.status === "completed" 
+                          ? "bg-purple-500/10 border border-purple-500/20 text-purple-400 shadow-[0_0_10px_rgba(168,85,247,0.1)]"
+                          : b.status === "assigned" 
+                            ? "bg-amber-500/10 border border-amber-500/20 text-amber-400 shadow-[0_0_10px_rgba(245,158,11,0.1)]" 
+                            : "bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.1)]"
+                      }`}>
+                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={
+                            b.status === "completed" ? "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            : b.status === "assigned" ? "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" 
+                            : "M5 13l4 4L19 7"
+                          } />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-white">
+                          {b.status === "completed" ? "Bounty Completed" : b.status === "assigned" ? "Bounty Assigned" : "Bounty Created"}
+                        </p>
+                        <p className="text-xs text-zinc-400 mt-1 line-clamp-1">{b.title}</p>
+                        <p className="text-xs font-medium text-emerald-400 mt-2">{b.rewardAmount} {b.asset}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-white">PR #42 Submitted</p>
-                      <p className="text-xs text-zinc-400 mt-1">Cross-Chain USDC Bridge Adapter</p>
-                      <p className="text-xs font-medium text-zinc-600 mt-2">2 days ago</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-4">
-                    <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0 shadow-[0_0_10px_rgba(52,211,153,0.1)]">
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-white">Bounty Payout: <span className="text-emerald-400">1,500 XLM</span></p>
-                      <p className="text-xs text-zinc-400 mt-1">Implement Soroban SAC Interface</p>
-                      <p className="text-xs font-medium text-zinc-600 mt-2">1 week ago</p>
-                    </div>
-                  </div>
+                  ))}
+                  {bounties.length === 0 && (
+                    <p className="text-sm text-zinc-500 text-center py-4">No recent activity yet.</p>
+                  )}
                 </div>
               </div>
 
