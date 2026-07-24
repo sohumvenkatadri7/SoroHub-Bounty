@@ -53,6 +53,7 @@ export default function CreateBountyPage() {
         id: `SORO-${newBountyId}`,
         title: formData.title,
         repo: formData.repo,
+        description: formData.description,
         rewardAmount: formData.amount,
         asset: formData.asset,
         level: formData.level,
@@ -91,10 +92,13 @@ export default function CreateBountyPage() {
       <header className="sticky top-0 z-50 border-b border-white/5 bg-black/60 backdrop-blur-xl px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3 cursor-pointer group" onClick={() => router.push("/")}>
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white text-sm shadow-[0_0_15px_rgba(99,102,241,0.3)]">
-              SH
-            </div>
-            <span className="font-semibold text-lg tracking-tight text-white hidden sm:block">SoroHub</span>
+            <span className="font-semibold text-xl tracking-tight text-white">SoroHub</span>
+          </div>
+
+          <div className="hidden sm:flex items-center gap-6 text-sm font-medium text-zinc-400">
+            <span onClick={() => router.push("/")} className="hover:text-white cursor-pointer transition-colors">Overview</span>
+            <span onClick={() => router.push("/dashboard")} className="hover:text-white cursor-pointer transition-colors">Bounties</span>
+            <span onClick={() => router.push("/profile")} className="hover:text-white cursor-pointer transition-colors">Profile</span>
           </div>
         </div>
 
@@ -105,7 +109,10 @@ export default function CreateBountyPage() {
           </div>
           {address ? (
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full pl-1.5 pr-3 py-1 cursor-pointer" onClick={() => router.push("/dashboard")}>
+              <div 
+                onClick={() => router.push("/profile")}
+                className="flex items-center gap-2 bg-white/10 border border-white/20 rounded-full pl-1.5 pr-3 py-1 cursor-pointer hover:bg-white/20 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.05)]"
+              >
                 <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center">
                   <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                 </div>
