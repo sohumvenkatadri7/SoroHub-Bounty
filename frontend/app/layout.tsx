@@ -5,8 +5,13 @@ import { WalletProvider } from "@/components/WalletProvider";
 import { NotificationProvider } from "@/components/NotificationProvider";
 
 export const metadata: Metadata = {
-  title: "SoroHub - Soroban Multi-Asset Escrow Protocol",
+  title: "SoroHub - Decentralized Bounties",
   description: "Automated Web3 bounties funded in XLM and USDC via Soroban smart contracts.",
+  openGraph: {
+    title: "SoroHub - Web3 Developer Bounties",
+    description: "Earn XLM and USDC by solving open-source issues on Stellar.",
+    type: "website",
+  }
 };
 
 export default function RootLayout({
