@@ -81,17 +81,17 @@ export default function LandingPage() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mb-24 relative z-20">
-          <button
-            onClick={address ? () => router.push("/dashboard") : handleConnectWallet}
-            className="bg-white text-black font-semibold text-base px-8 py-3.5 rounded-full hover:bg-zinc-200 transition-all hover:-translate-y-0.5 shadow-[0_0_30px_rgba(255,255,255,0.2)]"
+          <button 
+            onClick={() => router.push("/create")}
+            className="bg-white text-black font-semibold px-8 py-3.5 rounded-full hover:bg-slate-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:scale-105"
           >
-            {address ? "Go to Dashboard" : "Start Contributing"}
+            Fund a Bounty
           </button>
-          <button
+          <button 
             onClick={() => router.push("/dashboard")}
-            className="bg-white/5 border border-white/10 text-white font-medium text-base px-8 py-3.5 rounded-full hover:bg-white/10 transition-all backdrop-blur-md"
+            className="bg-white/5 border border-white/10 text-white font-medium px-8 py-3.5 rounded-full hover:bg-white/10 transition-all hover:border-white/20 hover:scale-105"
           >
-            Explore Bounties
+            Browse Open Issues
           </button>
         </div>
 
