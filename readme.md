@@ -334,6 +334,18 @@ Update `frontend/utils/soroban.ts` with your new contract IDs, and execute the i
 
 ---
 
+## 🔮 Future Integrations
+
+SoroHub is designed to be highly extensible. Future developments and community integrations could include:
+
+- **Automated GitHub PR Verification:** Implementing GitHub webhooks or GitHub Actions to automatically trigger the `claim_bounty` escrow release the moment a Pull Request is merged into the `main` branch.
+- **Advanced Reputation Oracles:** Using Chainlink or similar Oracles to fetch off-chain GitHub contribution metadata (lines of code, code quality, PR size) to mint dynamic SVGs for Soulbound Badges.
+- **Decentralized Dispute Resolution:** Integrating an escalation module where a DAO or independent arbiters (like Kleros) can vote on disputed PRs to determine escrow payouts.
+- **Cross-Chain Bounties:** Utilizing Stellar's cross-chain capabilities to allow funders to lock USDC on Polygon or Ethereum, while settling reputation and payouts natively on Soroban.
+- **Zero-Knowledge (ZK) Identity:** Allowing developers to prove their GitHub reputation or previous bounty completions using ZK proofs without revealing their actual GitHub usernames.
+
+---
+
 ## Project Structure
 
 ```
