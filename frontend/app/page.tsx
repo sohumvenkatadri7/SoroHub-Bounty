@@ -188,6 +188,35 @@ export default function LandingPage() {
             </p>
           </div>
         </div>
+        
+        {/* How It Works Section */}
+        <div className="w-full mt-32 mb-10 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight">How SoroHub Works</h2>
+            <p className="text-zinc-400 max-w-2xl mx-auto">A seamless lifecycle secured by the Stellar network and Soroban smart contracts.</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-8 relative">
+            {/* Connecting Line (Desktop Only) */}
+            <div className="hidden md:block absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-indigo-500/0 via-indigo-500/50 to-purple-500/0 -translate-y-1/2 z-0"></div>
+            
+            {[
+              { step: "01", title: "Fund an Issue", desc: "Create a bounty and lock XLM/USDC in the Escrow contract." },
+              { step: "02", title: "Assign Developer", desc: "Review applicants and assign the issue, minting a WIP badge." },
+              { step: "03", title: "Submit PR", desc: "The developer completes the work and submits a pull request." },
+              { step: "04", title: "Release Funds", desc: "Approve the PR to instantly release funds and mint a Completion badge." }
+            ].map((item, idx) => (
+              <div key={idx} className="relative z-10 flex flex-col items-center text-center p-6 bg-black/60 border border-white/10 rounded-2xl backdrop-blur-md hover:border-indigo-500/30 transition-colors">
+                <div className="w-10 h-10 rounded-full bg-indigo-500/10 text-indigo-400 font-mono font-bold flex items-center justify-center mb-4 border border-indigo-500/20 shadow-[0_0_15px_rgba(99,102,241,0.1)]">
+                  {item.step}
+                </div>
+                <h3 className="font-semibold text-white mb-2 text-lg">{item.title}</h3>
+                <p className="text-sm text-zinc-400 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </main>
 
       {/* Footer */}
