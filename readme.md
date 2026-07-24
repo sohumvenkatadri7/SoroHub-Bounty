@@ -185,8 +185,17 @@ Unlike simple NFT mints, SoroHub implements a highly sophisticated **dual-badge 
 ### Cross-Contract Authorization
 The Badge contract leverages Soroban's native `require_auth()`. The Escrow contract acts as the caller, and Soroban automatically validates the authorization footprint. This guarantees that bad actors cannot artificially inflate their reputation by calling `mint_badge` directly.
 
+### Developer Identity & Profiles
+A comprehensive `/profile` system allowing developers to set a Display Name, link their GitHub and Portfolio URLs (which automatically map to their bounty applications), and view their real-time on-chain balances (XLM/USDC) alongside their completed issues and Soulbound Badge count.
+
+### Real-Time Global Notification System
+SoroHub features a persistent `NotificationProvider` that listens to Firebase in real-time. When a Funder assigns a developer or approves their PR to release funds, the developer receives an instant, animated "Toast" notification in the UI with a direct link to the bounty.
+
+### End-to-End Escrow Lifecycle
+A fully built-out frontend flow managing complex state transitions (Open -> Assigned -> In Review -> Completed) featuring dynamic colored UI badges, PR submission inputs for developers, and one-click "Approve & Release" actions for Funders.
+
 ### Firebase Real-Time Hybrid State
-To ensure the UI is lightning fast (avoiding RPC rate limits for browsing), bounty metadata (titles, descriptions, applicants) is stored off-chain in Firebase Firestore, while the absolute financial truth (assignments, fund locks, badge ownership) is stored strictly on-chain.
+To ensure the UI is lightning fast (avoiding RPC rate limits for browsing), bounty metadata (titles, descriptions, applicants, profiles) is stored off-chain in Firebase Firestore, while the absolute financial truth (assignments, fund locks, badge ownership) is stored strictly on-chain.
 
 ### Proper Stroop Conversion
 The frontend cleanly interfaces with Soroban's 7-decimal `i128` requirement, seamlessly converting user-friendly numbers (e.g., 10 XLM) into exact on-chain stroops (100,000,000) during transaction building.
