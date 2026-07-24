@@ -2,6 +2,8 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { WalletProvider } from "@/components/WalletProvider";
 
+import { NotificationProvider } from "@/components/NotificationProvider";
+
 export const metadata: Metadata = {
   title: "SoroHub - Soroban Multi-Asset Escrow Protocol",
   description: "Automated Web3 bounties funded in XLM and USDC via Soroban smart contracts.",
@@ -22,7 +24,11 @@ export default function RootLayout({
         </div>
         
         <div className="relative z-10 flex flex-col min-h-screen">
-          <WalletProvider>{children}</WalletProvider>
+          <WalletProvider>
+            <NotificationProvider>
+              {children}
+            </NotificationProvider>
+          </WalletProvider>
         </div>
       </body>
     </html>
