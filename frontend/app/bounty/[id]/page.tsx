@@ -74,9 +74,21 @@ export default function BountyDetailPage() {
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
+          const data = docSnap.data();
           setBounty({
-            ...BOUNTY_DETAILS["default"],
-            ...docSnap.data()
+            ...data,
+            id: bountyId,
+            requirements: data.requirements || [
+              "Fulfill all specifications described in the issue context.",
+              "Ensure code builds successfully on Soroban Testnet.",
+              "Submit a pull request to the designated repository."
+            ],
+            rules: data.rules || [
+              "Bounty must be completed within the specified timeline.",
+              "Code must pass all required CI workflows.",
+              "Submissions are evaluated on optimization and security."
+            ],
+            escrowContract: "CCX7...K92L (Soroban Escrow)"
           });
         } else if (BOUNTY_DETAILS[bountyId]) {
           setBounty(BOUNTY_DETAILS[bountyId]);
@@ -101,6 +113,9 @@ export default function BountyDetailPage() {
   const { address, kit, connect, disconnect } = useWallet();
   const [isLocking, setIsLocking] = useState(false);
   const [txStatus, setTxStatus] = useState<string | null>(null);
+  const [prLink, setPrLink] = useState("");
+  const [applicantGithub, setApplicantGithub] = useState("");
+  const [applicantPortfolio, setApplicantPortfolio] = useState("");
 
   if (!bounty) return <div className="min-h-screen bg-black" />;
 
@@ -130,19 +145,57 @@ export default function BountyDetailPage() {
       const docRef = doc(db, "bounties", bounty.id || bountyId);
       await updateDoc(docRef, {
         applicantList: arrayUnion(address),
-        applicants: (bounty.applicants || 0) + 1
+        applicants: (bounty.applicants || 0) + 1,
+        [`applicantProfiles.${address}`]: {
+          github: applicantGithub,
+          portfolio: applicantPortfolio
+        }
       });
 
       setTxStatus("SUCCESS! APPLICATION SUBMITTED.");
       setBounty({
         ...bounty,
         applicantList: [...(bounty.applicantList || []), address],
-        applicants: (bounty.applicants || 0) + 1
+        applicants: (bounty.applicants || 0) + 1,
+        applicantProfiles: {
+          ...(bounty.applicantProfiles || {}),
+          [address]: { github: applicantGithub, portfolio: applicantPortfolio }
+        }
       });
       setTimeout(() => setTxStatus(null), 3000);
     } catch (err: any) {
       console.error("Application error:", err);
       setTxStatus(`ERROR: ${err?.message || "Failed to apply"}`);
+    } finally {
+      setIsLocking(false);
+    }
+  };
+
+  const handleSubmitPR = async () => {
+    if (!prLink) {
+      alert("Please enter a valid PR link");
+      return;
+    }
+    
+    setIsLocking(true);
+    setTxStatus("SUBMITTING PR...");
+
+    try {
+      const { db } = await import("@/utils/firebase");
+      const { doc, updateDoc } = await import("firebase/firestore");
+      
+      const docRef = doc(db, "bounties", bounty.id || bountyId);
+      await updateDoc(docRef, {
+        status: "in_review",
+        prLink: prLink
+      });
+
+      setTxStatus("SUCCESS! PR SUBMITTED.");
+      setBounty({ ...bounty, status: "in_review", prLink: prLink });
+      setTimeout(() => setTxStatus(null), 3000);
+    } catch (err: any) {
+      console.error("PR submit error:", err);
+      setTxStatus(`ERROR: ${err.message}`);
     } finally {
       setIsLocking(false);
     }
@@ -167,12 +220,66 @@ export default function BountyDetailPage() {
           status: "assigned",
           assignedTo: developer
         });
+        
+        const { setDoc, arrayUnion } = await import("firebase/firestore");
+        await setDoc(doc(db, "users", developer), {
+          notifications: arrayUnion({
+            id: Date.now().toString(),
+            message: `You were assigned to: ${bounty.title}`,
+            link: `/bounty/${bounty.id || bountyId}`,
+            read: false,
+            timestamp: new Date().toISOString()
+          })
+        }, { merge: true });
+
         setTxStatus("SUCCESS! BOUNTY ASSIGNED.");
         setBounty({ ...bounty, status: "assigned", assignedTo: developer });
         setTimeout(() => setTxStatus(null), 3000);
       }
     } catch (err: any) {
       console.error("Assign error:", err);
+      setTxStatus(`ERROR: ${err.message}`);
+    } finally {
+      setIsLocking(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!address || address !== bounty.funder) return;
+    setIsLocking(true);
+    setTxStatus("APPROVING PR AND RELEASING FUNDS...");
+
+    try {
+      const { claimBountyTransaction } = await import("@/utils/soroban");
+      const { db } = await import("@/utils/firebase");
+      const { doc, updateDoc } = await import("firebase/firestore");
+      
+      const numericBountyId = parseInt((bounty.id || bountyId).replace(/\D/g, "")) || 1;
+      
+      const result = await claimBountyTransaction(kit, address, bounty.assignedTo, numericBountyId);
+
+      if (result.status === "success") {
+        await updateDoc(doc(db, "bounties", bounty.id || bountyId), {
+          status: "completed",
+        });
+        
+        const { setDoc, arrayUnion } = await import("firebase/firestore");
+        await setDoc(doc(db, "users", bounty.assignedTo), {
+          notifications: arrayUnion({
+            id: Date.now().toString(),
+            message: `Your PR was approved! Funds released.`,
+            link: `/bounty/${bounty.id || bountyId}`,
+            read: false,
+            timestamp: new Date().toISOString()
+          })
+        }, { merge: true });
+
+        setTxStatus("SUCCESS! FUNDS RELEASED.");
+        setBounty({ ...bounty, status: "completed" });
+        setTimeout(() => setTxStatus(null), 3000);
+      }
+    } catch (err: any) {
+      console.error("Approve error:", err);
       setTxStatus(`ERROR: ${err.message}`);
     } finally {
       setIsLocking(false);
@@ -186,17 +293,13 @@ export default function BountyDetailPage() {
       <header className="sticky top-0 z-50 border-b border-zinc-800/80 bg-black/80 backdrop-blur-md px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3 cursor-pointer" onClick={() => router.push("/")}>
-            <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center font-bold text-black text-sm">
-              SH
-            </div>
-            <span className="font-semibold text-lg tracking-tight text-zinc-100 hidden sm:block">SoroHub</span>
+            <span className="font-semibold text-xl tracking-tight text-white">SoroHub</span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-4 text-sm font-medium text-zinc-400">
-            <span className="text-zinc-100 cursor-pointer">Overview</span>
-            <span className="hover:text-zinc-200 cursor-pointer transition-colors" onClick={() => router.push("/dashboard")}>Bounties</span>
-            <span className="hover:text-zinc-200 cursor-pointer transition-colors">Activity</span>
-            <span className="hover:text-zinc-200 cursor-pointer transition-colors">Settings</span>
+          <div className="hidden sm:flex items-center gap-6 text-sm font-medium text-zinc-400">
+            <span onClick={() => router.push("/")} className="hover:text-white cursor-pointer transition-colors">Overview</span>
+            <span onClick={() => router.push("/dashboard")} className="hover:text-white cursor-pointer transition-colors">Bounties</span>
+            <span onClick={() => router.push("/profile")} className="hover:text-white cursor-pointer transition-colors">Profile</span>
           </div>
         </div>
 
@@ -208,7 +311,10 @@ export default function BountyDetailPage() {
 
           {address ? (
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-full pl-1.5 pr-3 py-1 cursor-pointer hover:bg-zinc-800 transition-colors" onClick={() => router.push("/dashboard")}>
+              <div 
+                onClick={() => router.push("/profile")}
+                className="flex items-center gap-2 bg-white/10 border border-white/20 rounded-full pl-1.5 pr-3 py-1 cursor-pointer hover:bg-white/20 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.05)]"
+              >
                 <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center">
                   <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                 </div>
@@ -286,42 +392,146 @@ export default function BountyDetailPage() {
                   <div className="text-sm bg-indigo-500/10 text-indigo-400 p-3 rounded-lg border border-indigo-500/20 text-center font-medium">
                     Assigned to: {bounty.assignedTo?.slice(0,4)}...{bounty.assignedTo?.slice(-4)}
                   </div>
+                ) : bounty.status === "in_review" ? (
+                  <div className="flex flex-col gap-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 mt-2">
+                    <span className="font-semibold text-sm text-emerald-400 text-center">PR Ready for Review!</span>
+                    <a href={bounty.prLink} target="_blank" rel="noreferrer" className="text-xs text-white text-center underline hover:text-emerald-300 bg-black/40 py-2 rounded">
+                      View Pull Request
+                    </a>
+                    <button 
+                      onClick={handleApprove}
+                      disabled={isLocking}
+                      className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm px-6 py-2.5 rounded-lg transition-colors disabled:opacity-50 mt-2"
+                    >
+                      {isLocking ? "Approving..." : "Approve & Release Funds"}
+                    </button>
+                  </div>
+                ) : bounty.status === "completed" ? (
+                  <div className="text-sm bg-purple-500/10 text-purple-400 p-3 rounded-lg border border-purple-500/20 text-center font-medium flex items-center justify-center gap-2">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    Bounty Completed
+                  </div>
                 ) : (
-                  bounty.applicantList.map((app: string) => (
-                    <div key={app} className="flex items-center justify-between bg-zinc-800/50 p-3 rounded-lg border border-zinc-700/50">
-                      <span className="text-sm font-mono text-zinc-300">{app.slice(0, 4)}...{app.slice(-4)}</span>
-                      <button 
-                        onClick={() => handleAssign(app)}
-                        disabled={isLocking}
-                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded text-xs font-bold transition-colors disabled:opacity-50"
-                      >
-                        Assign
-                      </button>
-                    </div>
-                  ))
+                  bounty.applicantList.map((app: string) => {
+                    const profile = bounty.applicantProfiles?.[app] || {};
+                    return (
+                      <div key={app} className="flex flex-col bg-zinc-800/50 p-3 rounded-lg border border-zinc-700/50 gap-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-mono text-zinc-300">{app.slice(0, 4)}...{app.slice(-4)}</span>
+                          <button 
+                            onClick={() => handleAssign(app)}
+                            disabled={isLocking}
+                            className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded text-xs font-bold transition-colors disabled:opacity-50"
+                          >
+                            Assign
+                          </button>
+                        </div>
+                        {(profile.github || profile.portfolio) && (
+                          <div className="flex items-center gap-3 text-xs mt-1 border-t border-zinc-700/50 pt-2">
+                            {profile.github && (
+                              <a href={profile.github} target="_blank" rel="noreferrer" className="text-zinc-400 hover:text-white flex items-center gap-1">
+                                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/></svg>
+                                GitHub
+                              </a>
+                            )}
+                            {profile.portfolio && (
+                              <a href={profile.portfolio} target="_blank" rel="noreferrer" className="text-zinc-400 hover:text-white flex items-center gap-1">
+                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                Portfolio
+                              </a>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
                 )}
               </div>
-            ) : (
-              <>
+            ) : bounty.status === "assigned" && bounty.assignedTo === address ? (
+              <div className="mt-6 flex flex-col gap-3 w-full">
+                <input 
+                  type="url" 
+                  value={prLink}
+                  onChange={(e) => setPrLink(e.target.value)}
+                  placeholder="Paste GitHub PR Link..."
+                  className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-indigo-500" 
+                />
                 <button 
-                  className={`mt-6 w-full ${bounty.applicantList?.includes(address || "") ? "bg-zinc-800 text-zinc-400 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-500 text-white"} font-medium text-sm px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed`}
-                  onClick={handleApply}
-                  disabled={isLocking || bounty.applicantList?.includes(address || "")}
+                  onClick={handleSubmitPR}
+                  disabled={isLocking}
+                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm px-6 py-2.5 rounded-lg transition-colors disabled:opacity-50"
                 >
-                  {isLocking ? (
-                    "Submitting Application..."
-                  ) : address ? (
-                    bounty.applicantList?.includes(address) ? "Applied" :
-                    <>
-                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                      Apply for Bounty
-                    </>
-                  ) : (
-                    "Connect Wallet to Apply"
-                  )}
+                  {isLocking ? "Submitting..." : "Submit PR for Review"}
                 </button>
-                <span className="text-[11px] text-zinc-500 mt-3 font-medium text-center">Smart Contract Interaction Required</span>
-              </>
+                <span className="text-[11px] text-zinc-500 mt-1 font-medium text-center">Funder must approve to release funds</span>
+              </div>
+            ) : bounty.status === "in_review" && bounty.assignedTo === address ? (
+              <div className="mt-6 w-full bg-emerald-500/10 text-emerald-400 p-4 rounded-lg border border-emerald-500/20 text-center flex flex-col gap-2">
+                <span className="font-semibold text-sm">PR Submitted!</span>
+                <a href={bounty.prLink} target="_blank" rel="noreferrer" className="text-xs underline hover:text-emerald-300">View Pull Request</a>
+                <span className="text-xs text-zinc-400">Waiting for funder approval...</span>
+              </div>
+            ) : bounty.status === "assigned" || bounty.status === "in_review" ? (
+              <button disabled className="mt-6 w-full bg-zinc-800 text-zinc-500 font-medium text-sm px-6 py-3 rounded-lg cursor-not-allowed">
+                Bounty Assigned to Someone Else
+              </button>
+            ) : bounty.status === "completed" && bounty.assignedTo === address ? (
+              <div className="mt-6 w-full bg-purple-500/10 text-purple-400 p-4 rounded-lg border border-purple-500/20 text-center flex flex-col gap-2">
+                <svg className="w-6 h-6 mx-auto mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
+                <span className="font-semibold text-sm">Bounty Completed!</span>
+                <span className="text-xs text-zinc-400">Funds have been released to your wallet.</span>
+              </div>
+            ) : bounty.status === "completed" ? (
+              <button disabled className="mt-6 w-full bg-zinc-800 text-zinc-500 font-medium text-sm px-6 py-3 rounded-lg cursor-not-allowed flex items-center justify-center gap-2">
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Bounty Completed
+              </button>
+            ) : (
+              <div className="mt-6 flex flex-col gap-3 w-full">
+                {!address ? (
+                  <button 
+                    className="w-full bg-zinc-100 hover:bg-white text-black font-semibold text-sm px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+                    onClick={connect}
+                  >
+                    Connect Wallet to Apply
+                  </button>
+                ) : bounty.applicantList?.includes(address) ? (
+                  <button disabled className="w-full bg-zinc-800 text-zinc-400 font-medium text-sm px-6 py-3 rounded-lg cursor-not-allowed flex items-center justify-center gap-2">
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                    Application Submitted
+                  </button>
+                ) : (
+                  <>
+                    <input 
+                      type="url" 
+                      value={applicantGithub}
+                      onChange={(e) => setApplicantGithub(e.target.value)}
+                      placeholder="GitHub Profile URL (Required)"
+                      className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-indigo-500" 
+                    />
+                    <input 
+                      type="url" 
+                      value={applicantPortfolio}
+                      onChange={(e) => setApplicantPortfolio(e.target.value)}
+                      placeholder="Portfolio / Twitter URL (Optional)"
+                      className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-indigo-500" 
+                    />
+                    <button 
+                      className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed mt-1"
+                      onClick={handleApply}
+                      disabled={isLocking || !applicantGithub}
+                    >
+                      {isLocking ? "Submitting..." : (
+                        <>
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                          Apply for Bounty
+                        </>
+                      )}
+                    </button>
+                    <span className="text-[11px] text-zinc-500 mt-1 font-medium text-center">Smart Contract Interaction Required</span>
+                  </>
+                )}
+              </div>
             )}
           </div>
         </div>
