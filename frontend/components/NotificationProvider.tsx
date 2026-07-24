@@ -78,7 +78,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
                 </button>
               )}
             </div>
-            <button onClick={() => setToast(null)} className="text-white/50 hover:text-white transition-colors ml-auto p-1">
+            <button onClick={() => setToast(null)} className="text-white/50 hover:text-white transition-colors ml-auto p-1" aria-label="Close notification">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
           </div>
