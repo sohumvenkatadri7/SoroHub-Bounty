@@ -69,16 +69,51 @@ export default function ClaimBountyPage() {
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-600/10 rounded-full blur-[120px] pointer-events-none" />
       
       <header className="sticky top-0 z-50 border-b border-white/5 bg-black/40 backdrop-blur-xl px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => router.push("/")}>
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-zinc-100 to-zinc-400 flex items-center justify-center font-black text-black text-sm">SH</div>
-          <span className="font-semibold text-lg text-white">SoroHub</span>
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => router.push("/")}>
+            <span className="font-semibold text-xl tracking-tight text-white">SoroHub</span>
+          </div>
+
+          <div className="hidden sm:flex items-center gap-6 text-sm font-medium text-zinc-400">
+            <span onClick={() => router.push("/")} className="hover:text-white cursor-pointer transition-colors">Overview</span>
+            <span onClick={() => router.push("/dashboard")} className="hover:text-white cursor-pointer transition-colors">Bounties</span>
+            <span onClick={() => router.push("/profile")} className="hover:text-white cursor-pointer transition-colors">Profile</span>
+          </div>
         </div>
-        <button
-          onClick={() => router.push("/dashboard")}
-          className="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
-        >
-          Back to Dashboard
-        </button>
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1 text-xs font-medium text-zinc-300">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+            Soroban Testnet
+          </div>
+          {address ? (
+            <div className="flex items-center gap-3">
+              <div 
+                onClick={() => router.push("/profile")}
+                className="flex items-center gap-2 bg-white/10 border border-white/20 rounded-full pl-1.5 pr-3 py-1 cursor-pointer hover:bg-white/20 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.05)]"
+              >
+                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center">
+                  <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                </div>
+                <span className="text-sm font-medium text-white">
+                  {address.slice(0, 4)}...{address.slice(-4)}
+                </span>
+              </div>
+              <button 
+                onClick={disconnect}
+                className="text-xs font-medium text-zinc-400 hover:text-red-400 transition-colors"
+              >
+                Disconnect
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={connect}
+              className="text-sm font-medium bg-white text-black px-4 py-2 rounded-full hover:bg-zinc-200 transition-colors"
+            >
+              Connect Wallet
+            </button>
+          )}
+        </div>
       </header>
 
       <main className="max-w-[600px] mx-auto w-full px-6 py-16 relative z-10 flex-1">

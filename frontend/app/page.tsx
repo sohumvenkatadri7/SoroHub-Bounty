@@ -31,17 +31,12 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 border-b border-white/5 bg-black/40 backdrop-blur-xl px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3 cursor-pointer group" onClick={() => router.push("/")}>
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-zinc-100 to-zinc-400 flex items-center justify-center font-black text-black text-sm shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-all">
-              SH
-            </div>
-            <span className="font-semibold text-lg tracking-tight text-white hidden sm:block">SoroHub</span>
+            <span className="font-semibold text-xl tracking-tight text-white">SoroHub</span>
           </div>
 
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-zinc-400">
-            <span className="text-zinc-100 cursor-pointer">Product</span>
-            <span className="hover:text-white cursor-pointer transition-colors">Developers</span>
-            <span className="hover:text-white cursor-pointer transition-colors">Ecosystem</span>
-            <span className="hover:text-white cursor-pointer transition-colors">Documentation</span>
+            <span onClick={() => router.push("/")} className="hover:text-white cursor-pointer transition-colors">Overview</span>
+            <span onClick={() => router.push("/dashboard")} className="hover:text-white cursor-pointer transition-colors">Bounties</span>
           </div>
         </div>
 
