@@ -1,0 +1,518 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useWallet } from "@/components/WalletProvider";
+import { getDeveloperBadges, claimBountyTransaction } from "@/utils/soroban";
+
+interface Bounty {
+  id: string;
+  title: string;
+  repo: string;
+  rewardAmount: string;
+  asset: "XLM" | "USDC";
+  level: "Beginner" | "Intermediate" | "Advanced";
+  category: string;
+  applicants: number;
+  applicantList?: string[];
+  funder?: string;
+  status?: string;
+  assignedTo?: string;
+}
+
+const MOCK_BOUNTIES: Bounty[] = [];
+
+export default function DashboardPage() {
+  const router = useRouter();
+  const { address, kit, connect, disconnect } = useWallet();
+  const [activeTab, setActiveTab] = useState<"All" | "Beginner" | "Intermediate" | "Advanced" | "Manage">("All");
+  
+  const [xlmBalance, setXlmBalance] = useState<string>("0.00");
+  const [usdcBalance, setUsdcBalance] = useState<string>("0.00");
+  const [badgeCount, setBadgeCount] = useState<number>(0);
+  const [bounties, setBounties] = useState<Bounty[]>([]);
+
+  // Fetch bounties from Firebase (Real-time)
+  useEffect(() => {
+    let unsubscribe: () => void;
+    async function fetchBounties() {
+      try {
+        const { db } = await import("@/utils/firebase");
+        const { collection, onSnapshot, query, where } = await import("firebase/firestore");
+        
+        const q = query(collection(db, "bounties"));
+        unsubscribe = onSnapshot(q, (snapshot) => {
+          const fetched = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Bounty));
+          setBounties(fetched);
+        });
+      } catch (err) {
+        console.error("Failed to fetch bounties from Firebase:", err);
+      }
+    }
+    fetchBounties();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
+
+  // Fetch Balances and Badges
+  useEffect(() => {
+    if (!address) {
+      setXlmBalance("0.00");
+      setUsdcBalance("0.00");
+      setBadgeCount(0);
+      return;
+    }
+
+    async function fetchBalancesAndBadges() {
+      try {
+        const res = await fetch(`https://horizon-testnet.stellar.org/accounts/${address}`);
+        if (res.ok) {
+          const data = await res.json();
+          const native = data.balances.find((b: any) => b.asset_type === "native");
+          if (native) {
+            setXlmBalance(parseFloat(native.balance).toLocaleString("en-US", { maximumFractionDigits: 2 }));
+          }
+
+          const usdc = data.balances.find((b: any) => b.asset_code === "USDC");
+          if (usdc) {
+            setUsdcBalance(parseFloat(usdc.balance).toLocaleString("en-US", { maximumFractionDigits: 2 }));
+          } else {
+            setUsdcBalance("0.00");
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch Horizon balances:", err);
+      }
+
+      try {
+        const badges = await getDeveloperBadges(address as string);
+        setBadgeCount(badges.length);
+      } catch (err) {
+        console.error("Failed to fetch badges:", err);
+      }
+    }
+    
+    fetchBalancesAndBadges();
+  }, [address]);
+
+  const handleAssign = async (bounty: Bounty, developer: string) => {
+    if (!address) {
+      alert("Please connect wallet");
+      return;
+    }
+    try {
+      const { assignBountyTransaction } = await import("@/utils/soroban");
+      const { db } = await import("@/utils/firebase");
+      const { doc, updateDoc } = await import("firebase/firestore");
+      
+      const numericBountyId = parseInt(bounty.id.replace(/\D/g, "")) || 1;
+      
+      const result = await assignBountyTransaction(
+        kit,
+        address,
+        developer,
+        numericBountyId
+      );
+
+      if (result.status === "success") {
+        await updateDoc(doc(db, "bounties", bounty.id), {
+          status: "assigned",
+          assignedTo: developer
+        });
+        alert(`Bounty assigned successfully! Tx: ${result.hash}`);
+      }
+    } catch (err: any) {
+      console.error("Assign error:", err);
+      alert(`Error assigning: ${err.message}`);
+    }
+  };
+
+  const filteredBounties = activeTab === "Manage" 
+    ? bounties.filter(b => b.funder === address)
+    : activeTab === "All"
+      ? bounties.filter(b => b.status === "open")
+      : bounties.filter(b => b.status === "open" && b.level === activeTab);
+
+  return (
+    <div className="min-h-screen font-sans bg-[#000000] text-zinc-100 flex flex-col relative selection:bg-indigo-500/30 overflow-hidden">
+      
+      {/* Background Gradients */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[150px] pointer-events-none" />
+
+      {/* Header - Professional */}
+      <header className="sticky top-0 z-50 border-b border-white/5 bg-black/60 backdrop-blur-xl px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 cursor-pointer group" onClick={() => router.push("/")}>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-white text-sm shadow-[0_0_15px_rgba(99,102,241,0.3)] group-hover:shadow-[0_0_20px_rgba(99,102,241,0.5)] transition-all">
+              SH
+            </div>
+            <span className="font-semibold text-lg tracking-tight text-white hidden sm:block">SoroHub</span>
+          </div>
+
+          <div className="hidden sm:flex items-center gap-4 text-sm font-medium text-zinc-400">
+            <span className="text-zinc-100 cursor-pointer">Overview</span>
+            <span className="hover:text-white cursor-pointer transition-colors">Bounties</span>
+            <span className="hover:text-white cursor-pointer transition-colors">Activity</span>
+            <span className="hover:text-white cursor-pointer transition-colors">Settings</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-3 py-1 text-xs font-medium text-zinc-300">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+            Soroban Testnet
+          </div>
+
+          {address ? (
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-full pl-1.5 pr-3 py-1 cursor-pointer hover:bg-white/10 transition-colors">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center">
+                  <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                </div>
+                <span className="text-sm font-medium text-white">
+                  {address.slice(0, 4)}...{address.slice(-4)}
+                </span>
+              </div>
+              <button 
+                onClick={disconnect}
+                className="text-xs font-medium text-zinc-400 hover:text-red-400 transition-colors border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full"
+              >
+                Disconnect
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={connect}
+              className="bg-white text-black font-semibold text-sm px-4 py-2 rounded-full hover:bg-slate-200 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+            >
+              Connect Wallet
+            </button>
+          )}
+        </div>
+      </header>
+
+      {address ? (
+        <main className="max-w-[1200px] mx-auto px-6 py-8 relative z-10 w-full flex-1 flex flex-col gap-8">
+          
+          {/* Header Row */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+            <div>
+              <h1 className="text-3xl font-bold text-white tracking-tight mb-2">Dashboard</h1>
+              <p className="text-sm text-zinc-400">Manage your bounties, track payouts, and view your on-chain reputation.</p>
+            </div>
+            
+            <div className="flex items-center gap-3 self-start sm:self-auto">
+              <button 
+                onClick={() => router.push("/create")}
+                className="bg-white/5 border border-white/10 hover:bg-white/10 text-white font-medium text-sm px-5 py-2.5 rounded-lg transition-all flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+                Create Bounty
+              </button>
+              
+              <button 
+                onClick={() => router.push("/claim")}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm px-5 py-2.5 rounded-lg transition-all shadow-[0_0_15px_rgba(99,102,241,0.2)] hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                Submit PR Claim
+              </button>
+            </div>
+          </div>
+
+          {/* Key Metrics */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 flex flex-col hover:bg-white/[0.04] transition-colors relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/10 blur-2xl rounded-full pointer-events-none" />
+              <span className="text-sm font-medium text-zinc-400 mb-4 flex items-center gap-2">
+                <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Total Earned
+              </span>
+              <div className="text-3xl font-bold text-white mb-1 flex items-baseline gap-2">
+                0 <span className="text-base text-zinc-500 font-medium">XLM</span>
+              </div>
+            </div>
+
+            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 flex flex-col hover:bg-white/[0.04] transition-colors relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 blur-2xl rounded-full pointer-events-none" />
+              <span className="text-sm font-medium text-zinc-400 mb-4 flex items-center gap-2">
+                <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+                Wallet Balances
+              </span>
+              <div className="flex flex-col gap-1.5 relative z-10">
+                <div className="flex justify-between items-end">
+                  <span className="text-2xl font-bold text-white">{xlmBalance}</span>
+                  <span className="text-sm font-medium text-emerald-400 mb-1">XLM</span>
+                </div>
+                <div className="flex justify-between items-end">
+                  <span className="text-2xl font-bold text-white">{usdcBalance}</span>
+                  <span className="text-sm font-medium text-blue-400 mb-1">USDC</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 flex flex-col hover:bg-white/[0.04] transition-colors relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 blur-2xl rounded-full pointer-events-none" />
+              <span className="text-sm font-medium text-zinc-400 mb-4 flex items-center gap-2">
+                <svg className="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                Completed Issues
+              </span>
+              <div className="text-3xl font-bold text-white mb-2 relative z-10">0</div>
+              <div className="text-xs font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 rounded-md w-fit relative z-10">
+                1 Pending Review
+              </div>
+            </div>
+
+            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-5 flex flex-col hover:bg-white/[0.04] transition-colors relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/10 blur-2xl rounded-full pointer-events-none" />
+              <span className="text-sm font-medium text-zinc-400 mb-4 flex items-center gap-2">
+                <svg className="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
+                Soulbound Badges
+              </span>
+              <div className="text-3xl font-bold text-white mb-2 relative z-10">{badgeCount}</div>
+              <div className="text-xs font-semibold text-purple-400 bg-purple-400/10 border border-purple-400/20 px-2.5 py-1 rounded-md w-fit relative z-10">
+                Verified On-Chain
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* Left Column: Bounties & Activity */}
+            <div className="lg:col-span-2 flex flex-col gap-8">
+              
+              {/* Activity Chart Placeholder */}
+              <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 relative overflow-hidden">
+                <div className="flex items-center justify-between mb-6 relative z-10">
+                  <h2 className="text-base font-semibold text-white">Contribution Activity</h2>
+                  <select className="bg-white/5 border border-white/10 text-white text-xs font-medium rounded-md px-3 py-1.5 outline-none hover:bg-white/10 transition-colors">
+                    <option>Last 30 Days</option>
+                    <option>Last 90 Days</option>
+                    <option>This Year</option>
+                  </select>
+                </div>
+                <div className="h-40 w-full flex items-end gap-2 pb-2 border-b border-white/10 relative z-10">
+                  {/* Mock Chart Bars */}
+                  {[...Array(30)].map((_, i) => {
+                    const height = Math.floor(Math.random() * 80) + 10;
+                    const isToday = i === 29;
+                    return (
+                      <div 
+                        key={i} 
+                        className={`flex-1 rounded-t-sm ${isToday ? 'bg-gradient-to-t from-indigo-500 to-purple-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]' : 'bg-white/10 hover:bg-white/20'} transition-all duration-300`}
+                        style={{ height: `${height}%` }}
+                      />
+                    );
+                  })}
+                </div>
+                <div className="flex justify-between mt-3 text-xs font-medium text-zinc-500 relative z-10">
+                  <span>Jul 1</span>
+                  <span>Jul 15</span>
+                  <span>Jul 30</span>
+                </div>
+              </div>
+
+              {/* Bounties List */}
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="text-base font-semibold text-white">Open Bounties</h2>
+                  <div className="flex bg-white/5 border border-white/10 rounded-lg p-1">
+                    {(["All", "Beginner", "Intermediate", "Advanced", "Manage"] as const).map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
+                          activeTab === tab
+                            ? "bg-white text-black shadow-sm"
+                            : "text-zinc-400 hover:text-white"
+                        }`}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden flex flex-col min-h-[200px]">
+                  {filteredBounties.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center p-12 text-center h-full">
+                      <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mb-4 text-zinc-600">
+                        <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                      </div>
+                      <h3 className="text-lg font-medium text-white mb-2">No Active Bounties</h3>
+                      <p className="text-sm text-zinc-400 max-w-sm mx-auto mb-6">
+                        There are currently no open bounties on SoroHub. Be the first to fund an open-source issue and kick off the ecosystem!
+                      </p>
+                      <button 
+                        onClick={() => router.push("/create")}
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm px-6 py-2.5 rounded-lg transition-all shadow-[0_0_15px_rgba(99,102,241,0.2)]"
+                      >
+                        Create Your First Bounty
+                      </button>
+                    </div>
+                  ) : (
+                    filteredBounties.map((bounty, i) => (
+                      <div
+                        key={bounty.id}
+                        className={`p-5 flex flex-col sm:flex-row sm:items-start justify-between gap-4 hover:bg-white/[0.04] transition-colors ${
+                          i !== filteredBounties.length - 1 ? 'border-b border-white/5' : ''
+                        }`}
+                      >
+                        <div 
+                          className="flex flex-col gap-1.5 cursor-pointer group"
+                          onClick={() => router.push(`/bounty/${bounty.id}`)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-xs font-mono font-medium text-zinc-500 bg-white/5 px-2 py-0.5 rounded">#{bounty.id}</span>
+                            <span className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors">{bounty.title}</span>
+                          </div>
+                          <div className="flex items-center gap-3 text-xs font-medium">
+                            <span className="text-zinc-400">{bounty.repo}</span>
+                            <span className="w-1 h-1 rounded-full bg-zinc-700" />
+                            <span className="text-emerald-400">{bounty.level}</span>
+                            <span className="w-1 h-1 rounded-full bg-zinc-700" />
+                            <span className="text-purple-400">{bounty.category}</span>
+                            {bounty.status && (
+                              <>
+                                <span className="w-1 h-1 rounded-full bg-zinc-700" />
+                                <span className="text-indigo-400 capitalize">{bounty.status}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col sm:items-end gap-3">
+                          <div className="flex items-center gap-6 sm:justify-end cursor-pointer" onClick={() => router.push(`/bounty/${bounty.id}`)}>
+                            <div className="flex flex-col sm:items-end gap-1">
+                              <span className="text-sm font-bold text-white">
+                                {bounty.rewardAmount} <span className="text-zinc-500">{bounty.asset}</span>
+                              </span>
+                              <span className="text-xs text-zinc-500">{bounty.applicants || 0} applicants</span>
+                            </div>
+                            <div className="hidden sm:flex text-zinc-500 hover:text-indigo-400 hover:translate-x-1 transition-all">
+                              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                            </div>
+                          </div>
+
+                          {activeTab === "Manage" && (
+                            <div className="mt-2 flex flex-col gap-2 w-full max-w-xs">
+                              {bounty.status === "open" && bounty.applicantList && bounty.applicantList.length > 0 && (
+                                <div className="text-xs text-zinc-400">
+                                  <div className="font-semibold text-zinc-300 mb-2">Applicants:</div>
+                                  {bounty.applicantList.map((app) => (
+                                    <div key={app} className="flex items-center justify-between bg-black/50 p-2 rounded border border-white/5 mb-1">
+                                      <span className="font-mono">{app.slice(0, 4)}...{app.slice(-4)}</span>
+                                      <button 
+                                        onClick={(e) => { e.stopPropagation(); handleAssign(bounty, app); }}
+                                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-2 py-1 rounded text-[10px] uppercase font-bold"
+                                      >
+                                        Assign
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                              {bounty.status === "assigned" && (
+                                <div className="text-xs bg-indigo-500/10 text-indigo-400 px-3 py-2 rounded border border-indigo-500/20 text-center font-medium">
+                                  Assigned to: {bounty.assignedTo?.slice(0,4)}...{bounty.assignedTo?.slice(-4)}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column: System Logs & Recent Activity */}
+            <div className="flex flex-col gap-8">
+              
+              {/* Recent Submissions */}
+              <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+                <h2 className="text-base font-semibold text-white mb-6">Recent Submissions</h2>
+                <div className="flex flex-col gap-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shrink-0 shadow-[0_0_10px_rgba(245,158,11,0.1)]">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-white">PR #42 Submitted</p>
+                      <p className="text-xs text-zinc-400 mt-1">Cross-Chain USDC Bridge Adapter</p>
+                      <p className="text-xs font-medium text-zinc-600 mt-2">2 days ago</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-4">
+                    <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0 shadow-[0_0_10px_rgba(52,211,153,0.1)]">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-white">Bounty Payout: <span className="text-emerald-400">1,500 XLM</span></p>
+                      <p className="text-xs text-zinc-400 mt-1">Implement Soroban SAC Interface</p>
+                      <p className="text-xs font-medium text-zinc-600 mt-2">1 week ago</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* System Log */}
+              <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 flex-1">
+                <h2 className="text-base font-semibold text-white mb-6 flex items-center gap-2">
+                  System Log
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse ml-auto" />
+                </h2>
+                
+                <div className="flex flex-col gap-6 relative before:absolute before:inset-y-0 before:left-3.5 before:w-[1px] before:bg-white/10">
+                  <div className="relative pl-10">
+                    <div className="absolute left-[11px] top-1.5 w-2.5 h-2.5 rounded-full bg-blue-400 ring-4 ring-[#0a0a0a]" />
+                    <p className="text-sm font-semibold text-white">Wallet Connected</p>
+                    <p className="text-xs text-zinc-400 mt-0.5">Session initialized</p>
+                  </div>
+                  
+                  <div className="relative pl-10">
+                    <div className="absolute left-[11px] top-1.5 w-2.5 h-2.5 rounded-full bg-purple-400 ring-4 ring-[#0a0a0a]" />
+                    <p className="text-sm font-semibold text-white">Passport Verified</p>
+                    <p className="text-xs text-zinc-400 mt-0.5">Badges loaded for {address.slice(0, 4)}...{address.slice(-4)}</p>
+                  </div>
+
+                  <div className="relative pl-10">
+                    <div className="absolute left-[11px] top-1.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-4 ring-[#0a0a0a]" />
+                    <p className="text-sm font-semibold text-white">Balances Synced</p>
+                    <p className="text-xs text-zinc-400 mt-0.5">Horizon RPC connected</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </main>
+      ) : (
+        <main className="flex-1 flex flex-col items-center justify-center relative z-10 w-full px-6 py-20">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-500/10 blur-[150px] rounded-full pointer-events-none" />
+          <div className="text-center mb-12 max-w-lg mx-auto relative z-10">
+            <div className="w-20 h-20 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 rounded-3xl flex items-center justify-center mx-auto mb-8 text-indigo-400 shadow-[0_0_30px_rgba(99,102,241,0.2)]">
+              <svg className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+            </div>
+            <h1 className="text-4xl font-bold text-white tracking-tight mb-4">
+              Connect your wallet
+            </h1>
+            <p className="text-zinc-400 text-lg leading-relaxed">
+              Sign in with your Stellar wallet to view your developer passport, track your payouts, and apply for open bounties.
+            </p>
+            <button
+              onClick={connect}
+              className="mt-10 bg-white text-black font-semibold text-base px-8 py-3.5 rounded-full hover:bg-slate-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:-translate-y-0.5"
+            >
+              Connect Wallet
+            </button>
+          </div>
+        </main>
+      )}
+    </div>
+  );
+}
