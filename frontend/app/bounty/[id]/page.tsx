@@ -117,6 +117,38 @@ export default function BountyDetailPage() {
   const [prLink, setPrLink] = useState("");
   const [applicantGithub, setApplicantGithub] = useState("");
   const [applicantPortfolio, setApplicantPortfolio] = useState("");
+  const [timeLeft, setTimeLeft] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (bounty?.status === "assigned" && bounty.assignedAt) {
+      const calculateTimeLeft = () => {
+        const assignedTime = new Date(bounty.assignedAt).getTime();
+        const deadlineDays = bounty.deadlineDays || 7;
+        const deadlineTime = assignedTime + (deadlineDays * 24 * 60 * 60 * 1000);
+        const now = new Date().getTime();
+        const difference = deadlineTime - now;
+
+        if (difference <= 0) {
+          setTimeLeft("EXPIRED");
+        } else {
+          const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+          
+          if (days > 0) {
+            setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+          } else {
+            setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+          }
+        }
+      };
+      
+      calculateTimeLeft();
+      const timer = setInterval(calculateTimeLeft, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [bounty]);
 
   if (!bounty) return <div className="min-h-screen bg-black" />;
 
@@ -202,6 +234,38 @@ export default function BountyDetailPage() {
     }
   };
 
+  const handleCancel = async () => {
+    if (!address || address !== bounty.funder) return;
+    setIsLocking(true);
+    setTxStatus("CANCELLING BOUNTY AND REFUNDING...");
+
+    try {
+      const { cancelBountyTransaction } = await import("@/utils/soroban");
+      const { db } = await import("@/utils/firebase");
+      const { doc, updateDoc } = await import("firebase/firestore");
+      
+      const numericBountyId = parseInt((bounty.id || bountyId).replace(/\D/g, "")) || 1;
+      
+      const result = await cancelBountyTransaction(kit, address, numericBountyId);
+
+      if (result.status === "success") {
+        const docRef = doc(db, "bounties", bounty.id || bountyId);
+        await updateDoc(docRef, {
+          status: "cancelled"
+        });
+
+        setTxStatus("SUCCESS! BOUNTY CANCELLED & REFUNDED.");
+        setBounty({ ...bounty, status: "cancelled" });
+        setTimeout(() => setTxStatus(null), 3000);
+      }
+    } catch (err: any) {
+      console.error("Cancel error:", err);
+      setTxStatus(`ERROR: ${err.message}`);
+    } finally {
+      setIsLocking(false);
+    }
+  };
+
   const handleAssign = async (developer: string) => {
     if (!address) return;
     setIsLocking(true);
@@ -217,9 +281,11 @@ export default function BountyDetailPage() {
       const result = await assignBountyTransaction(kit, address, developer, numericBountyId);
 
       if (result.status === "success") {
+        const assignedAt = new Date().toISOString();
         await updateDoc(doc(db, "bounties", bounty.id || bountyId), {
           status: "assigned",
-          assignedTo: developer
+          assignedTo: developer,
+          assignedAt: assignedAt
         });
         
         const { setDoc, arrayUnion } = await import("firebase/firestore");
@@ -234,7 +300,7 @@ export default function BountyDetailPage() {
         }, { merge: true });
 
         setTxStatus("SUCCESS! BOUNTY ASSIGNED.");
-        setBounty({ ...bounty, status: "assigned", assignedTo: developer });
+        setBounty({ ...bounty, status: "assigned", assignedTo: developer, assignedAt: assignedAt });
         setTimeout(() => setTxStatus(null), 3000);
       }
     } catch (err: any) {
@@ -412,6 +478,11 @@ export default function BountyDetailPage() {
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     Bounty Completed
                   </div>
+                ) : bounty.status === "cancelled" ? (
+                  <div className="text-sm bg-red-500/10 text-red-400 p-3 rounded-lg border border-red-500/20 text-center font-medium flex items-center justify-center gap-2">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    Bounty Cancelled
+                  </div>
                 ) : (
                   bounty.applicantList.map((app: string) => {
                     const profile = bounty.applicantProfiles?.[app] || {};
@@ -446,6 +517,16 @@ export default function BountyDetailPage() {
                       </div>
                     );
                   })
+                )}
+                {bounty.status === "open" && (
+                  <button
+                    onClick={handleCancel}
+                    disabled={isLocking}
+                    className="w-full mt-4 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 font-medium text-xs px-4 py-2.5 rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    {isLocking ? "Processing..." : "Cancel Bounty & Refund Escrow"}
+                  </button>
                 )}
               </div>
             ) : bounty.status === "assigned" && bounty.assignedTo === address ? (
@@ -594,6 +675,21 @@ export default function BountyDetailPage() {
                 <span className="inline-flex text-sm font-medium text-zinc-300 bg-zinc-800 px-3 py-1 rounded-md">
                   {bounty.level}
                 </span>
+              </div>
+
+              <div>
+                <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Deadline</h3>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex text-sm font-medium text-zinc-300 bg-zinc-800 px-3 py-1 rounded-md">
+                    {bounty.deadlineDays || 7} Days
+                  </span>
+                  {bounty.status === "assigned" && timeLeft && (
+                    <span className={`text-xs font-bold px-2.5 py-1 rounded-md flex items-center gap-1 ${timeLeft === "EXPIRED" ? "bg-red-500/10 text-red-400 border border-red-500/20" : "bg-amber-500/10 text-amber-400 border border-amber-500/20"}`}>
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      {timeLeft === "EXPIRED" ? "EXPIRED" : `${timeLeft} left`}
+                    </span>
+                  )}
+                </div>
               </div>
               
               <div>

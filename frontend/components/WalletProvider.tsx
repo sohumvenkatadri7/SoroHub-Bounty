@@ -29,6 +29,12 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
       modules: [new FreighterModule(), new xBullModule(), new AlbedoModule()],
     });
     setKitInitialized(true);
+
+    // 3. Restore session if exists
+    const savedAddress = localStorage.getItem("sorohub_wallet_address");
+    if (savedAddress) {
+      setAddress(savedAddress);
+    }
   }, []);
 
   const router = useRouter();
@@ -43,6 +49,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
       // SWK v2 authModal handles both wallet selection and returning the connected address
       const { address: publicKey } = await StellarWalletsKit.authModal();
       setAddress(publicKey);
+      localStorage.setItem("sorohub_wallet_address", publicKey);
       return true;
     } catch (error: any) {
       // The modal throws errors on user cancellation or if the extension is not installed.
@@ -55,6 +62,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
   const disconnect = () => {
     StellarWalletsKit.disconnect().catch(console.error);
     setAddress(null);
+    localStorage.removeItem("sorohub_wallet_address");
   };
 
   return (

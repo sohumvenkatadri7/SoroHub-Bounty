@@ -22,6 +22,7 @@ export default function CreateBountyPage() {
     asset: "XLM",
     amount: "",
     level: "Beginner",
+    deadlineDays: "7",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,6 +58,7 @@ export default function CreateBountyPage() {
         rewardAmount: formData.amount,
         asset: formData.asset,
         level: formData.level,
+        deadlineDays: parseInt(formData.deadlineDays) || 7,
         category: "Community Bounty", // Default category
         applicants: 0,
         applicantList: [],
@@ -163,7 +165,7 @@ export default function CreateBountyPage() {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-zinc-300">GitHub Repository</label>
               <input 
@@ -186,6 +188,18 @@ export default function CreateBountyPage() {
                 <option value="Intermediate">Intermediate</option>
                 <option value="Advanced">Advanced</option>
               </select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-zinc-300">Deadline (Days)</label>
+              <input 
+                type="number" 
+                required
+                min="1"
+                placeholder="e.g. 7"
+                className="bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+                value={formData.deadlineDays}
+                onChange={(e) => setFormData({...formData, deadlineDays: e.target.value})}
+              />
             </div>
           </div>
 

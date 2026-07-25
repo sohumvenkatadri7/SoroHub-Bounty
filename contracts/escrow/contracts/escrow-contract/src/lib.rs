@@ -89,6 +89,33 @@ impl Escrow {
     }
 
     // ─────────────────────────────────────────────────────────────────────────
+    // WRITE — CANCEL (Refund funds to funder)
+    // ─────────────────────────────────────────────────────────────────────────
+    pub fn cancel_bounty(env: Env, bounty_id: u32) {
+        let record: BountyRecord = env
+            .storage()
+            .instance()
+            .get(&DataKey::BountyFund(bounty_id))
+            .expect("bounty not found or already claimed/cancelled");
+
+        // Only original funder can cancel
+        record.funder.require_auth();
+
+        // Ensure it hasn't been assigned yet
+        assert!(
+            !env.storage().instance().has(&DataKey::Assignment(bounty_id)),
+            "Cannot cancel a bounty that has already been assigned"
+        );
+
+        // ── Refund token from vault → funder wallet ──
+        token::Client::new(&env, &record.token)
+            .transfer(&env.current_contract_address(), &record.funder, &record.amount);
+
+        // ── Clean up state ──
+        env.storage().instance().remove(&DataKey::BountyFund(bounty_id));
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     // WRITE — CLAIM (Burn WIP Badge, Mint Final Badge, Release Funds)
     // ─────────────────────────────────────────────────────────────────────────
     pub fn claim_bounty(env: Env, developer: Address, bounty_id: u32) {

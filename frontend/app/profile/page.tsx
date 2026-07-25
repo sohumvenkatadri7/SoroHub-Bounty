@@ -23,6 +23,7 @@ export default function ProfilePage() {
   const [xlmBalance, setXlmBalance] = useState<string>("0.00");
   const [usdcBalance, setUsdcBalance] = useState<string>("0.00");
   const [badgeCount, setBadgeCount] = useState<number>(0);
+  const [wipBadgeCount, setWipBadgeCount] = useState<number>(0);
   const [completedBounties, setCompletedBounties] = useState<Bounty[]>([]);
   const [totalEarned, setTotalEarned] = useState<number>(0);
 
@@ -92,6 +93,10 @@ export default function ProfilePage() {
       try {
         const badges = await getDeveloperBadges(address);
         setBadgeCount(badges.length);
+        
+        const { getWipBadges } = await import("@/utils/soroban");
+        const wipBadges = await getWipBadges(address);
+        setWipBadgeCount(wipBadges.length);
       } catch (err) {}
     }
     
@@ -292,13 +297,22 @@ export default function ProfilePage() {
               <div className="md:col-span-2 flex flex-col gap-6">
                 
                 {/* Metrics Row */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="bg-purple-500/5 border border-purple-500/20 rounded-2xl p-5 flex flex-col items-center justify-center text-center relative overflow-hidden">
                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(168,85,247,0.15)_0%,transparent_70%)] pointer-events-none"></div>
                     <span className="text-3xl font-bold text-white mb-1 relative z-10">{badgeCount}</span>
                     <span className="text-xs font-medium text-purple-400 uppercase tracking-wider relative z-10 flex items-center gap-1.5">
                       <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
-                      Soulbound Badges
+                      Completed Badges
+                    </span>
+                  </div>
+                  
+                  <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-5 flex flex-col items-center justify-center text-center relative overflow-hidden">
+                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(245,158,11,0.15)_0%,transparent_70%)] pointer-events-none"></div>
+                    <span className="text-3xl font-bold text-white mb-1 relative z-10">{wipBadgeCount}</span>
+                    <span className="text-xs font-medium text-amber-400 uppercase tracking-wider relative z-10 flex items-center gap-1.5">
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      WIP Badges
                     </span>
                   </div>
                   <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-5 flex flex-col items-center justify-center text-center relative overflow-hidden">
