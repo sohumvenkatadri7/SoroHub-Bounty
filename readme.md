@@ -141,6 +141,7 @@ The Escrow contract serves as the financial and state-management hub of the plat
 |---|---|
 | `init(admin, badge_contract)` | Initializes the contract and stores the address of the Badge Contract for future cross-contract invocations. |
 | `fund_bounty(...)` | Transfers tokens from the Funder to the Contract Vault and creates an immutable `BountyRecord`. |
+| `cancel_bounty(...)` | Secures the Funder against stale bounties by allowing them to withdraw their locked tokens (refund) as long as no developer has been assigned. |
 | `assign_bounty(...)` | Funder assigns a developer. Logs the assignment on-chain and makes a cross-contract call to mint a WIP badge to the developer. |
 | `claim_bounty(...)` | Funder approves the PR. Transfers locked funds to the developer, burns the WIP badge, and mints the Final Completion Badge. |
 
@@ -194,6 +195,12 @@ SoroHub features a persistent `NotificationProvider` that listens to Firebase in
 ### End-to-End Escrow Lifecycle
 A fully built-out frontend flow managing complex state transitions (Open -> Assigned -> In Review -> Completed) featuring dynamic colored UI badges, PR submission inputs for developers, and one-click "Approve & Release" actions for Funders.
 
+### Bounty Timers & Deadlines
+Every bounty has a configurable deadline set by the funder (e.g., 7 days). When a developer is assigned, a live countdown timer strictly tracks their submission window. If the developer fails to submit a PR within the deadline, the Funder has the right to re-open the bounty.
+
+### Secure Escrow Cancellations
+SoroHub respects Funder liquidity. If a bounty is created but fails to attract any applicants, the Funder can execute a completely on-chain `cancel_bounty` transaction to instantly withdraw and refund their locked tokens back to their wallet. (Restricted by the contract so it cannot be executed *after* a developer has been assigned).
+
 ### Firebase Real-Time Hybrid State
 To ensure the UI is lightning fast (avoiding RPC rate limits for browsing), bounty metadata (titles, descriptions, applicants, profiles) is stored off-chain in Firebase Firestore, while the absolute financial truth (assignments, fund locks, badge ownership) is stored strictly on-chain.
 
@@ -202,11 +209,20 @@ The frontend cleanly interfaces with Soroban's 7-decimal `i128` requirement, sea
 
 ---
 
+## 🔮 Future Integrations Roadmap
+
+While SoroHub is fully functional for production right now, the architecture is designed to scale into an autonomous ecosystem:
+1. **GitHub App API Integration**: Automating the `claim_bounty` process by listening to merged PR webhooks directly from GitHub.
+2. **AI Code Review Oracles**: Deploying AI subagents that automatically review PRs for security vulnerabilities before allowing the Funder to release escrow.
+3. **Multi-Asset Governance**: Allowing developers to stake their earned Soulbound Badges for voting power over platform protocol upgrades.
+
+---
+
 ## Contract Addresses (Testnet)
 
 | Contract | Address |
 |---|---|
-| **Escrow Protocol** | `CBNT4MLXPWI5ZUGTDSBHKY4373PHXS65TCM47BK7572IP7GJMUFNGHGW` |
+| **Escrow Protocol** | `CCMPOMD4SZIITQL7SFRT7TT65M656TJERW7TFWOWQ4GKGINP2DW35GYZ` |
 | **Badge Protocol** | `CDOT3TVM5OBMV56FLZZFXNWZUVLWX65BRHXCI7VWB2MTDRTXN42T35U5` |
 | **Network** | Stellar Testnet |
 | **RPC** | `https://soroban-testnet.stellar.org` |
