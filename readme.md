@@ -196,6 +196,20 @@ To ensure the UI is lightning fast (avoiding RPC rate limits for browsing), boun
 </p>
 <p align="center"><em>Shows the recent transactions made on the Badge Contract</em></p>
 
+
+### Mobile Responsive UI
+
+  
+<img width="416" height="727" alt="Screenshot 2026-07-27 003431" src="https://github.com/user-attachments/assets/d8ba1c09-22aa-4ba3-8544-4a1113d786d4" />
+<img width="412" height="725" alt="Screenshot 2026-07-27 003450" src="https://github.com/user-attachments/assets/efc37327-d3f7-49ef-ab60-7f0cd954c74c" />
+
+<br> </br>
+
+ <img width="413" height="722" alt="Screenshot 2026-07-27 003513" src="https://github.com/user-attachments/assets/1668ffc0-1558-4b46-9f67-28362bff0e01" />
+ <img width="412" height="717" alt="Screenshot 2026-07-27 003500" src="https://github.com/user-attachments/assets/53678ccd-2fba-42c1-8051-8e26b3c40079" />
+  
+
+
 ---
 
 ## ⚙️ Core Engineering Architecture
