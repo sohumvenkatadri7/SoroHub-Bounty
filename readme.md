@@ -207,6 +207,15 @@ Every bounty has a configurable deadline set by the funder (e.g., 7 days). When 
 ### Secure Escrow Cancellations
 SoroHub respects Funder liquidity. If a bounty is created but fails to attract any applicants, the Funder can execute a completely on-chain `cancel_bounty` transaction to instantly withdraw and refund their locked tokens back to their wallet. (Restricted by the contract so it cannot be executed *after* a developer has been assigned).
 
+### Premium Vercel/Linear-Style Aesthetics
+SoroHub ditches the typical "vibe-coded" crypto look for a highly professional, high-contrast, strictly structured design language. With clean typography, subtle monochromatic borders, precise spacing, and refined color accents for status tags, the platform feels like a mature enterprise tool designed for elite developers.
+
+### Intelligent Link Parsing
+Whether a user enters `github.com/project` or `https://github.com/project`, the frontend utilizes intelligent URL normalization to ensure all outlinks route securely and correctly, eliminating broken reference chains in bounty submissions.
+
+### Advanced Wallet Mismatch Prevention
+Crypto UI often suffers when a user's dApp connection state falls out of sync with their extension wallet (e.g., Freighter). SoroHub implements an explicit pre-flight check that queries the active Freighter API public key against the session identity. If a mismatch is detected, the UI intercepts the execution flow and displays a helpful error *before* an invalid signature causes a confusing on-chain failure.
+
 ### Firebase Real-Time Hybrid State
 To ensure the UI is lightning fast (avoiding RPC rate limits for browsing), bounty metadata (titles, descriptions, applicants, profiles) is stored off-chain in Firebase Firestore, while the absolute financial truth (assignments, fund locks, badge ownership) is stored strictly on-chain.
 
@@ -245,6 +254,8 @@ While SoroHub is fully functional for production right now, the architecture is 
 │   Error Type              Frontend Response                      │
 │   ─────────────────────  ──────────────────────────────         │
 │   Wallet Not Connected   → Modal prompt + connection flow       │
+│   Wallet Mismatch        → Prevents signing if Freighter active │
+│                            account differs from connected one.  │
 │   WasmVm InvalidAction   → Detailed simulation failure toast    │
 │   Auth Failure           → Signature rejection handler          │
 │   Contract Panics        → UI rollback to prevent sync issues   │
