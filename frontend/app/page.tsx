@@ -205,7 +205,7 @@ export default function LandingPage() {
                 </div>
                 <div className="mt-4 flex items-end justify-between gap-4">
                   <div className="flex flex-col gap-1 min-w-0 flex-1">
-                    <span className="text-xs text-zinc-400 truncate">{bounty.repo}</span>
+                    <a href={bounty.repo?.startsWith('http') ? bounty.repo : `https://github.com/${bounty.repo}`} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="text-xs text-zinc-400 hover:text-white transition-colors truncate hover:underline">{bounty.repo}</a>
                   </div>
                   <div className="text-lg font-bold text-white flex items-baseline gap-1.5 shrink-0 max-w-[50%]">
                     <span className="truncate" title={bounty.rewardAmount?.toString()}>{bounty.rewardAmount}</span>

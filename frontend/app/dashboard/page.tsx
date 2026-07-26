@@ -413,7 +413,7 @@ export default function DashboardPage() {
                             <span className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors">{bounty.title}</span>
                           </div>
                           <div className="flex items-center gap-3 text-xs font-medium">
-                            <span className="text-zinc-300">{bounty.repo}</span>
+                            <a href={bounty.repo?.startsWith('http') ? bounty.repo : `https://github.com/${bounty.repo}`} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="text-zinc-300 hover:text-white transition-colors hover:underline">{bounty.repo}</a>
                             <span className="w-1 h-1 rounded-full bg-zinc-700" />
                             <span className="text-emerald-400">{bounty.level}</span>
                             <span className="w-1 h-1 rounded-full bg-zinc-700" />
@@ -452,7 +452,7 @@ export default function DashboardPage() {
                                 <div className="text-xs text-zinc-300">
                                   <div className="font-semibold text-zinc-300 mb-2">Applicants:</div>
                                   {bounty.applicantList.map((app) => {
-                                    const profile = bounty.applicantProfiles?.[app] || {};
+                                    const profile = (bounty as any).applicantProfiles?.[app] || {};
                                     return (
                                       <div key={app} className="flex flex-col bg-black/50 p-2 rounded border border-white/5 mb-1 gap-1.5">
                                         <div className="flex items-center justify-between">

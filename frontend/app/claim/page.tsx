@@ -49,7 +49,7 @@ export default function ClaimBountyPage() {
       }
 
       setTxStatus("SUCCESS! FUNDS RELEASED & NFT MINTED.");
-      if (result.hash) {
+      if ((result as any).hash) {
         setTxHash(result.hash);
       } else {
         setTimeout(() => {

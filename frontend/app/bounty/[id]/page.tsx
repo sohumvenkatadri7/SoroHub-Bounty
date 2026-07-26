@@ -263,7 +263,7 @@ export default function BountyDetailPage() {
       
       const result = await cancelBountyTransaction(kit, address, numericBountyId);
 
-      if (result.status === "success") {
+      if (typeof result !== "string" && result.status === "success") {
         const docRef = doc(db, "bounties", bounty.id || bountyId);
         await updateDoc(docRef, {
           status: "cancelled"
@@ -295,7 +295,7 @@ export default function BountyDetailPage() {
       
       const result = await assignBountyTransaction(kit, address, developer, numericBountyId);
 
-      if (result.status === "success") {
+      if (typeof result !== "string" && result.status === "success") {
         const assignedAt = new Date().toISOString();
         await updateDoc(doc(db, "bounties", bounty.id || bountyId), {
           status: "assigned",
@@ -340,7 +340,7 @@ export default function BountyDetailPage() {
       
       const result = await claimBountyTransaction(kit, address, bounty.assignedTo, numericBountyId);
 
-      if (result.status === "success") {
+      if (typeof result !== "string" && result.status === "success") {
         await updateDoc(doc(db, "bounties", bounty.id || bountyId), {
           status: "completed",
         });
@@ -433,23 +433,72 @@ export default function BountyDetailPage() {
         </div>
 
         {/* Bounty Header Area */}
-        <div className="flex flex-col lg:flex-row justify-between items-start gap-8 mb-12">
+        <div className="flex flex-col mb-8">
           
-          <div className="flex-1">
+          <div >
             <div className="flex items-center gap-3 mb-4">
               <span className="text-sm font-medium text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2.5 py-1 rounded-md">
                 Open for Claims
               </span>
-              <span className="text-sm font-medium text-zinc-300 bg-zinc-900 border border-zinc-800 rounded-md px-2.5 py-1 flex items-center gap-1.5">
+              <a 
+                href={bounty.repo?.startsWith('http') ? bounty.repo : `https://github.com/${bounty.repo}`}
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm font-medium text-zinc-300 bg-zinc-900 border border-zinc-800 rounded-md px-2.5 py-1 flex items-center gap-1.5 hover:bg-zinc-800 hover:text-white transition-colors"
+              >
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
                 {bounty.repo}
-              </span>
+              </a>
             </div>
             <h1 className="text-3xl sm:text-4xl font-semibold text-zinc-100 tracking-tight mb-4 leading-tight">
               {bounty.title}
             </h1>
           </div>
 
+        </div>
+
+        {/* Content Tabs Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          <div className="lg:col-span-2 flex flex-col gap-8">
+            {/* Context */}
+            <section>
+              <h2 className="text-lg font-semibold text-zinc-100 mb-4 pb-2 border-b border-zinc-800">Issue Context</h2>
+              <div className="text-sm text-zinc-300 space-y-4 leading-relaxed whitespace-pre-wrap">
+                {bounty.description}
+              </div>
+            </section>
+
+            {/* Requirements List */}
+            <section>
+              <h2 className="text-lg font-semibold text-zinc-100 mb-4 pb-2 border-b border-zinc-800">Technical Requirements</h2>
+              <ul className="flex flex-col gap-3">
+                {bounty.requirements.map((req: string, i: number) => (
+                  <li key={i} className="flex items-start gap-3 bg-zinc-900/30 p-3 rounded-lg border border-zinc-800/50">
+                    <svg className="w-5 h-5 text-indigo-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                    <span className="text-sm text-zinc-300 leading-relaxed">{req}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            {/* Verification Rules */}
+            <section>
+              <h2 className="text-lg font-semibold text-zinc-100 mb-4 pb-2 border-b border-zinc-800">Escrow Release Rules</h2>
+              <ul className="flex flex-col gap-3">
+                {bounty.rules.map((rule: string, i: number) => (
+                  <li key={i} className="flex items-start gap-3 bg-zinc-900/30 p-3 rounded-lg border border-zinc-800/50">
+                    <div className="w-5 h-5 rounded bg-amber-500/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <span className="text-amber-500 text-xs font-bold">{i + 1}</span>
+                    </div>
+                    <span className="text-sm text-zinc-300 leading-relaxed">{rule}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </div>
+
+          <div className="flex flex-col gap-6">
           <div className="w-full lg:w-80 shrink-0 bg-zinc-900/50 border border-zinc-800/80 rounded-2xl p-6 flex flex-col items-center justify-center text-center">
             <span className="text-sm font-medium text-zinc-400 mb-2 uppercase tracking-wider">Bounty Escrow</span>
             <div className="text-4xl font-semibold text-zinc-100 mb-1 flex items-baseline gap-2">
@@ -639,50 +688,6 @@ export default function BountyDetailPage() {
               </div>
             )}
           </div>
-        </div>
-
-        {/* Content Tabs Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          <div className="lg:col-span-2 flex flex-col gap-8">
-            {/* Context */}
-            <section>
-              <h2 className="text-lg font-semibold text-zinc-100 mb-4 pb-2 border-b border-zinc-800">Issue Context</h2>
-              <div className="text-sm text-zinc-300 space-y-4 leading-relaxed whitespace-pre-wrap">
-                {bounty.description}
-              </div>
-            </section>
-
-            {/* Requirements List */}
-            <section>
-              <h2 className="text-lg font-semibold text-zinc-100 mb-4 pb-2 border-b border-zinc-800">Technical Requirements</h2>
-              <ul className="flex flex-col gap-3">
-                {bounty.requirements.map((req, i) => (
-                  <li key={i} className="flex items-start gap-3 bg-zinc-900/30 p-3 rounded-lg border border-zinc-800/50">
-                    <svg className="w-5 h-5 text-indigo-400 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                    <span className="text-sm text-zinc-300 leading-relaxed">{req}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-
-            {/* Verification Rules */}
-            <section>
-              <h2 className="text-lg font-semibold text-zinc-100 mb-4 pb-2 border-b border-zinc-800">Escrow Release Rules</h2>
-              <ul className="flex flex-col gap-3">
-                {bounty.rules.map((rule, i) => (
-                  <li key={i} className="flex items-start gap-3 bg-zinc-900/30 p-3 rounded-lg border border-zinc-800/50">
-                    <div className="w-5 h-5 rounded bg-amber-500/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <span className="text-amber-500 text-xs font-bold">{i + 1}</span>
-                    </div>
-                    <span className="text-sm text-zinc-300 leading-relaxed">{rule}</span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          </div>
-
-          <div className="flex flex-col gap-6">
             
             {/* Meta Information Sidebar */}
             <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl p-5 flex flex-col gap-5">

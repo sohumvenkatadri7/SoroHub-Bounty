@@ -70,7 +70,7 @@ export default function CreateBountyPage() {
       await setDoc(doc(db, "bounties", newBounty.id), newBounty);
 
       setTxStatus("SUCCESS! BOUNTY CREATED & FUNDED.");
-      if (result.hash) {
+      if ((result as any).hash) {
         setTxHash(result.hash);
       } else {
         setTimeout(() => {

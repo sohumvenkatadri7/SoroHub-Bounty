@@ -54,7 +54,7 @@ export default function ProfilePage() {
         setTotalEarned(earned);
 
         // Fetch global profile links
-        const profileSnap = await getDoc(doc(db, "users", address));
+        const profileSnap = await getDoc(doc(db, "users", address as string));
         if (profileSnap.exists()) {
           setGithub(profileSnap.data().github || "");
           setPortfolio(profileSnap.data().portfolio || "");
@@ -91,11 +91,11 @@ export default function ProfilePage() {
       } catch (err) {}
 
       try {
-        const badges = await getDeveloperBadges(address);
+        const badges = await getDeveloperBadges(address as string);
         setBadgeCount(badges.length);
         
         const { getWipBadges } = await import("@/utils/soroban");
-        const wipBadges = await getWipBadges(address);
+        const wipBadges = await getWipBadges(address as string);
         setWipBadgeCount(wipBadges.length);
       } catch (err) {}
     }
@@ -110,7 +110,7 @@ export default function ProfilePage() {
     try {
       const { db } = await import("@/utils/firebase");
       const { doc, setDoc } = await import("firebase/firestore");
-      await setDoc(doc(db, "users", address), { name, github, portfolio }, { merge: true });
+      await setDoc(doc(db, "users", address as string), { name, github, portfolio }, { merge: true });
       setSaveMsg("Profile saved successfully!");
       setTimeout(() => setSaveMsg(""), 3000);
     } catch (err) {
