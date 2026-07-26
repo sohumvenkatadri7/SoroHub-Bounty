@@ -21,8 +21,8 @@ async function checkWalletMismatch(expectedAddress: string) {
   try {
     if (await isConnected()) {
       const activePublicKey = await getAddress();
-      if (activePublicKey && activePublicKey.address !== expectedAddress) {
-        throw new Error(`Wallet mismatch! You connected as ${expectedAddress.slice(0,4)}...${expectedAddress.slice(-4)} but Freighter is set to ${activePublicKey.address.slice(0,4)}...${activePublicKey.address.slice(-4)}. Please switch your Freighter account.`);
+      if (activePublicKey && activePublicKey !== expectedAddress) {
+        throw new Error(`Wallet mismatch! You connected as ${expectedAddress.slice(0,4)}...${expectedAddress.slice(-4)} but Freighter is set to ${activePublicKey.slice(0,4)}...${activePublicKey.slice(-4)}. Please switch your Freighter account.`);
       }
     }
   } catch (e: any) {

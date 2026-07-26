@@ -16,3 +16,11 @@ Cargo.lock
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Custom Automation Scripts
+*.py
+fix_*.js
+inject_*.js
+refactor_*.js
+write_*.js
+test_*.ts
