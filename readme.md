@@ -183,6 +183,12 @@ Unlike simple NFT mints, SoroHub implements a highly sophisticated **dual-badge 
 1. **Assignment:** Developer receives a WIP (Work In Progress) badge.
 2. **Settlement:** WIP badge is atomically burned, funds are released, and a Permanent Completion Badge is minted in a single transaction.
 
+### Web3-Native "Developer Passport" Onboarding
+A completely overhauled, premium glassmorphism onboarding experience. Instead of generic forms, new users mint their identity via a "Developer Passport" interface that visually syncs their live Stellar wallet, GitHub profile, and email into an overarching Web3 identity, setting a high bar for platform aesthetics.
+
+### Dedicated Funder Management Hub
+Funders aren't left searching through public feeds. A dedicated `/manage` portal gives bounty creators a comprehensive, top-down view of every bounty they've funded. They can track applicant counts, review PRs, release escrows, or cancel stale bounties—all from a single, beautifully organized control center.
+
 ### Cross-Contract Authorization
 The Badge contract leverages Soroban's native `require_auth()`. The Escrow contract acts as the caller, and Soroban automatically validates the authorization footprint. This guarantees that bad actors cannot artificially inflate their reputation by calling `mint_badge` directly.
 
