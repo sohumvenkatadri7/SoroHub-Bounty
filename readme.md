@@ -145,6 +145,9 @@ The Badge contract leverages Soroban's native `require_auth()`. The Escrow contr
 ### ⚡ Firebase Real-Time Hybrid State
 To ensure the UI is lightning fast (avoiding RPC rate limits for browsing), bounty metadata (titles, descriptions, applicants, profiles) is stored off-chain in Firebase Firestore, while the absolute financial truth (assignments, fund locks, badge ownership) is stored strictly on-chain.
 
+### 📈 Protocol Analytics & Growth Tracking
+A dedicated `/analytics` hub provides a beautifully visualized, real-time breakdown of protocol health. It features dynamic Recharts-powered graphs tracing platform activity, real-time escrow lock-vs-release progress bars, and aggregated developer passport metrics to give the community absolute transparency over the ecosystem's growth.
+
 ---
 
 ## 📸 Platform Preview
