@@ -74,7 +74,7 @@ export default function ClaimBountyPage() {
             <span className="font-semibold text-xl tracking-tight text-white">SoroHub</span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-6 text-sm font-medium text-zinc-400">
+          <div className="hidden sm:flex items-center gap-6 text-sm font-medium text-zinc-300">
             <span onClick={() => router.push("/")} className="hover:text-white cursor-pointer transition-colors">Overview</span>
             <span onClick={() => router.push("/dashboard")} className="hover:text-white cursor-pointer transition-colors">Bounties</span>
             <span onClick={() => router.push("/profile")} className="hover:text-white cursor-pointer transition-colors">Profile</span>
@@ -100,7 +100,7 @@ export default function ClaimBountyPage() {
               </div>
               <button 
                 onClick={disconnect}
-                className="text-xs font-medium text-zinc-400 hover:text-red-400 transition-colors"
+                className="text-xs font-medium text-zinc-300 hover:text-red-400 transition-colors"
               >
                 Disconnect
               </button>
@@ -118,7 +118,7 @@ export default function ClaimBountyPage() {
 
       <main className="max-w-[600px] mx-auto w-full px-6 py-16 relative z-10 flex-1">
         <h1 className="text-3xl font-bold text-white mb-2">Approve Pull Request</h1>
-        <p className="text-zinc-400 text-sm mb-10">Release escrowed funds and mint a soulbound badge to the developer who completed the task.</p>
+        <p className="text-zinc-300 text-sm mb-10">Release escrowed funds and mint a soulbound badge to the developer who completed the task.</p>
 
         <form onSubmit={handleSubmit} className="space-y-6 bg-[#0a0a0a] p-8 rounded-2xl border border-white/10">
           <div className="space-y-2">
@@ -141,7 +141,7 @@ export default function ClaimBountyPage() {
               onChange={(e) => setFormData({ ...formData, developerAddress: e.target.value })}
               className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono text-sm"
             />
-            <p className="text-xs text-zinc-500 mt-1">This address will receive the USDC/XLM and the NFT Badge.</p>
+            <p className="text-xs text-zinc-400 mt-1">This address will receive the USDC/XLM and the NFT Badge.</p>
           </div>
 
           <div className="space-y-2">
@@ -183,7 +183,7 @@ export default function ClaimBountyPage() {
               </div>
               <div>
                 <h3 className="text-emerald-400 font-semibold mb-1">Developer Paid & Badge Minted!</h3>
-                <p className="text-xs text-zinc-400 break-all bg-black/30 p-2 rounded border border-white/5 font-mono">
+                <p className="text-xs text-zinc-300 break-all bg-black/30 p-2 rounded border border-white/5 font-mono">
                   Tx: {txHash}
                 </p>
               </div>

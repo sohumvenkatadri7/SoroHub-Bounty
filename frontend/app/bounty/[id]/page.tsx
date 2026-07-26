@@ -173,15 +173,26 @@ export default function BountyDetailPage() {
 
     try {
       const { db } = await import("@/utils/firebase");
-      const { doc, updateDoc, arrayUnion } = await import("firebase/firestore");
+      const { doc, getDoc, updateDoc, arrayUnion } = await import("firebase/firestore");
       
+      const userRef = doc(db, "users", address);
+      const userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) {
+        alert("Please complete your profile registration first!");
+        router.push("/onboarding");
+        return;
+      }
+      
+      const userData = userSnap.data();
+
       const docRef = doc(db, "bounties", bounty.id || bountyId);
       await updateDoc(docRef, {
         applicantList: arrayUnion(address),
         applicants: (bounty.applicants || 0) + 1,
         [`applicantProfiles.${address}`]: {
-          github: applicantGithub,
-          portfolio: applicantPortfolio
+          name: userData.name || "Unknown",
+          github: userData.github || "",
+          portfolio: userData.email || ""
         }
       });
 
@@ -192,7 +203,11 @@ export default function BountyDetailPage() {
         applicants: (bounty.applicants || 0) + 1,
         applicantProfiles: {
           ...(bounty.applicantProfiles || {}),
-          [address]: { github: applicantGithub, portfolio: applicantPortfolio }
+          [address]: { 
+            name: userData.name || "Unknown", 
+            github: userData.github || "", 
+            portfolio: userData.email || "" 
+          }
         }
       });
       setTimeout(() => setTxStatus(null), 3000);
@@ -363,7 +378,7 @@ export default function BountyDetailPage() {
             <span className="font-semibold text-xl tracking-tight text-white">SoroHub</span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-6 text-sm font-medium text-zinc-400">
+          <div className="hidden sm:flex items-center gap-6 text-sm font-medium text-zinc-300">
             <span onClick={() => router.push("/")} className="hover:text-white cursor-pointer transition-colors">Overview</span>
             <span onClick={() => router.push("/dashboard")} className="hover:text-white cursor-pointer transition-colors">Bounties</span>
             <span onClick={() => router.push("/profile")} className="hover:text-white cursor-pointer transition-colors">Profile</span>
@@ -371,7 +386,7 @@ export default function BountyDetailPage() {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="hidden sm:flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1 text-xs font-medium text-zinc-400">
+          <div className="hidden sm:flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-full px-3 py-1 text-xs font-medium text-zinc-300">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             Soroban Testnet
           </div>
@@ -391,7 +406,7 @@ export default function BountyDetailPage() {
               </div>
               <button 
                 onClick={disconnect}
-                className="text-xs font-medium text-zinc-500 hover:text-red-400 transition-colors border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 px-3 py-1.5 rounded-full"
+                className="text-xs font-medium text-zinc-400 hover:text-red-400 transition-colors border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 px-3 py-1.5 rounded-full"
               >
                 Disconnect
               </button>
@@ -411,7 +426,7 @@ export default function BountyDetailPage() {
       <main className="max-w-[1000px] mx-auto px-6 py-8 relative z-10 w-full flex-1">
         
         {/* Navigation Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-zinc-500 mb-8">
+        <div className="flex items-center gap-2 text-sm text-zinc-400 mb-8">
           <span className="hover:text-zinc-300 cursor-pointer transition-colors" onClick={() => router.push("/dashboard")}>Bounties</span>
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <span className="text-zinc-300 font-mono">Issue #{bountyId}</span>
@@ -425,7 +440,7 @@ export default function BountyDetailPage() {
               <span className="text-sm font-medium text-emerald-400 bg-emerald-400/10 border border-emerald-400/20 px-2.5 py-1 rounded-md">
                 Open for Claims
               </span>
-              <span className="text-sm font-medium text-zinc-400 bg-zinc-900 border border-zinc-800 rounded-md px-2.5 py-1 flex items-center gap-1.5">
+              <span className="text-sm font-medium text-zinc-300 bg-zinc-900 border border-zinc-800 rounded-md px-2.5 py-1 flex items-center gap-1.5">
                 <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
                 {bounty.repo}
               </span>
@@ -436,9 +451,9 @@ export default function BountyDetailPage() {
           </div>
 
           <div className="w-full lg:w-80 shrink-0 bg-zinc-900/50 border border-zinc-800/80 rounded-2xl p-6 flex flex-col items-center justify-center text-center">
-            <span className="text-sm font-medium text-zinc-500 mb-2 uppercase tracking-wider">Bounty Escrow</span>
+            <span className="text-sm font-medium text-zinc-400 mb-2 uppercase tracking-wider">Bounty Escrow</span>
             <div className="text-4xl font-semibold text-zinc-100 mb-1 flex items-baseline gap-2">
-              {bounty.rewardAmount} <span className="text-base text-zinc-500 font-medium">{bounty.asset}</span>
+              {bounty.rewardAmount} <span className="text-base text-zinc-400 font-medium">{bounty.asset}</span>
             </div>
             
             {txStatus && (
@@ -450,9 +465,9 @@ export default function BountyDetailPage() {
 
             {address === bounty.funder ? (
               <div className="mt-6 w-full flex flex-col gap-2 text-left">
-                <div className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1">Manage Applicants</div>
+                <div className="text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-1">Manage Applicants</div>
                 {!bounty.applicantList || bounty.applicantList.length === 0 ? (
-                  <div className="text-sm text-zinc-500 bg-zinc-800/50 p-3 rounded-lg border border-zinc-700/50 text-center">
+                  <div className="text-sm text-zinc-400 bg-zinc-800/50 p-3 rounded-lg border border-zinc-700/50 text-center">
                     No applicants yet.
                   </div>
                 ) : bounty.status === "assigned" ? (
@@ -489,7 +504,10 @@ export default function BountyDetailPage() {
                     return (
                       <div key={app} className="flex flex-col bg-zinc-800/50 p-3 rounded-lg border border-zinc-700/50 gap-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm font-mono text-zinc-300">{app.slice(0, 4)}...{app.slice(-4)}</span>
+                          <div className="flex flex-col">
+                            <span className="text-sm font-semibold text-white">{profile.name || "Unknown Developer"}</span>
+                            <span className="text-[10px] font-mono text-zinc-400">{app.slice(0, 6)}...{app.slice(-4)}</span>
+                          </div>
                           <button 
                             onClick={() => handleAssign(app)}
                             disabled={isLocking}
@@ -501,15 +519,34 @@ export default function BountyDetailPage() {
                         {(profile.github || profile.portfolio) && (
                           <div className="flex items-center gap-3 text-xs mt-1 border-t border-zinc-700/50 pt-2">
                             {profile.github && (
-                              <a href={profile.github} target="_blank" rel="noreferrer" className="text-zinc-400 hover:text-white flex items-center gap-1">
+                              <a 
+                                href={profile.github.startsWith('http') ? profile.github : `https://${profile.github.includes('github.com') ? profile.github : 'github.com/' + profile.github}`} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                className="text-zinc-300 hover:text-white flex items-center gap-1"
+                              >
                                 <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/></svg>
                                 GitHub
                               </a>
                             )}
                             {profile.portfolio && (
-                              <a href={profile.portfolio} target="_blank" rel="noreferrer" className="text-zinc-400 hover:text-white flex items-center gap-1">
-                                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                                Portfolio
+                              <a 
+                                href={profile.portfolio.includes('@') && !profile.portfolio.startsWith('http') ? `mailto:${profile.portfolio}` : (profile.portfolio.startsWith('http') ? profile.portfolio : `https://${profile.portfolio}`)} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                className="text-zinc-300 hover:text-white flex items-center gap-1"
+                              >
+                                {profile.portfolio.includes('@') && !profile.portfolio.startsWith('http') ? (
+                                  <>
+                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                                    Email
+                                  </>
+                                ) : (
+                                  <>
+                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                    Portfolio
+                                  </>
+                                )}
                               </a>
                             )}
                           </div>
@@ -545,26 +582,26 @@ export default function BountyDetailPage() {
                 >
                   {isLocking ? "Submitting..." : "Submit PR for Review"}
                 </button>
-                <span className="text-[11px] text-zinc-500 mt-1 font-medium text-center">Funder must approve to release funds</span>
+                <span className="text-[11px] text-zinc-400 mt-1 font-medium text-center">Funder must approve to release funds</span>
               </div>
             ) : bounty.status === "in_review" && bounty.assignedTo === address ? (
               <div className="mt-6 w-full bg-emerald-500/10 text-emerald-400 p-4 rounded-lg border border-emerald-500/20 text-center flex flex-col gap-2">
                 <span className="font-semibold text-sm">PR Submitted!</span>
                 <a href={bounty.prLink} target="_blank" rel="noreferrer" className="text-xs underline hover:text-emerald-300">View Pull Request</a>
-                <span className="text-xs text-zinc-400">Waiting for funder approval...</span>
+                <span className="text-xs text-zinc-300">Waiting for funder approval...</span>
               </div>
             ) : bounty.status === "assigned" || bounty.status === "in_review" ? (
-              <button disabled className="mt-6 w-full bg-zinc-800 text-zinc-500 font-medium text-sm px-6 py-3 rounded-lg cursor-not-allowed">
+              <button disabled className="mt-6 w-full bg-zinc-800 text-zinc-400 font-medium text-sm px-6 py-3 rounded-lg cursor-not-allowed">
                 Bounty Assigned to Someone Else
               </button>
             ) : bounty.status === "completed" && bounty.assignedTo === address ? (
               <div className="mt-6 w-full bg-purple-500/10 text-purple-400 p-4 rounded-lg border border-purple-500/20 text-center flex flex-col gap-2">
                 <svg className="w-6 h-6 mx-auto mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
                 <span className="font-semibold text-sm">Bounty Completed!</span>
-                <span className="text-xs text-zinc-400">Funds have been released to your wallet.</span>
+                <span className="text-xs text-zinc-300">Funds have been released to your wallet.</span>
               </div>
             ) : bounty.status === "completed" ? (
-              <button disabled className="mt-6 w-full bg-zinc-800 text-zinc-500 font-medium text-sm px-6 py-3 rounded-lg cursor-not-allowed flex items-center justify-center gap-2">
+              <button disabled className="mt-6 w-full bg-zinc-800 text-zinc-400 font-medium text-sm px-6 py-3 rounded-lg cursor-not-allowed flex items-center justify-center gap-2">
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 Bounty Completed
               </button>
@@ -578,30 +615,16 @@ export default function BountyDetailPage() {
                     Connect Wallet to Apply
                   </button>
                 ) : bounty.applicantList?.includes(address) ? (
-                  <button disabled className="w-full bg-zinc-800 text-zinc-400 font-medium text-sm px-6 py-3 rounded-lg cursor-not-allowed flex items-center justify-center gap-2">
+                  <button disabled className="w-full bg-zinc-800 text-zinc-300 font-medium text-sm px-6 py-3 rounded-lg cursor-not-allowed flex items-center justify-center gap-2">
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                     Application Submitted
                   </button>
                 ) : (
                   <>
-                    <input 
-                      type="url" 
-                      value={applicantGithub}
-                      onChange={(e) => setApplicantGithub(e.target.value)}
-                      placeholder="GitHub Profile URL (Required)"
-                      className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-indigo-500" 
-                    />
-                    <input 
-                      type="url" 
-                      value={applicantPortfolio}
-                      onChange={(e) => setApplicantPortfolio(e.target.value)}
-                      placeholder="Portfolio / Twitter URL (Optional)"
-                      className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-indigo-500" 
-                    />
                     <button 
-                      className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed mt-1"
                       onClick={handleApply}
-                      disabled={isLocking || !applicantGithub}
+                      disabled={isLocking}
+                      className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm px-6 py-3 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed mt-1"
                     >
                       {isLocking ? "Submitting..." : (
                         <>
@@ -610,7 +633,7 @@ export default function BountyDetailPage() {
                         </>
                       )}
                     </button>
-                    <span className="text-[11px] text-zinc-500 mt-1 font-medium text-center">Smart Contract Interaction Required</span>
+                    <span className="text-[11px] text-zinc-400 mt-1 font-medium text-center">Smart Contract Interaction Required</span>
                   </>
                 )}
               </div>
@@ -625,7 +648,7 @@ export default function BountyDetailPage() {
             {/* Context */}
             <section>
               <h2 className="text-lg font-semibold text-zinc-100 mb-4 pb-2 border-b border-zinc-800">Issue Context</h2>
-              <div className="text-sm text-zinc-400 space-y-4 leading-relaxed whitespace-pre-wrap">
+              <div className="text-sm text-zinc-300 space-y-4 leading-relaxed whitespace-pre-wrap">
                 {bounty.description}
               </div>
             </section>
@@ -664,21 +687,21 @@ export default function BountyDetailPage() {
             {/* Meta Information Sidebar */}
             <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl p-5 flex flex-col gap-5">
               <div>
-                <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Category</h3>
+                <h3 className="text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">Category</h3>
                 <span className="inline-flex text-sm font-medium text-zinc-300 bg-zinc-800 px-3 py-1 rounded-md">
                   Smart Contract
                 </span>
               </div>
               
               <div>
-                <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Experience Level</h3>
+                <h3 className="text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">Experience Level</h3>
                 <span className="inline-flex text-sm font-medium text-zinc-300 bg-zinc-800 px-3 py-1 rounded-md">
                   {bounty.level}
                 </span>
               </div>
 
               <div>
-                <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Deadline</h3>
+                <h3 className="text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">Deadline</h3>
                 <div className="flex items-center gap-2">
                   <span className="inline-flex text-sm font-medium text-zinc-300 bg-zinc-800 px-3 py-1 rounded-md">
                     {bounty.deadlineDays || 7} Days
@@ -693,9 +716,9 @@ export default function BountyDetailPage() {
               </div>
               
               <div>
-                <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wider mb-2">Applicants</h3>
+                <h3 className="text-xs font-medium text-zinc-400 uppercase tracking-wider mb-2">Applicants</h3>
                 <div className="flex items-center gap-2 text-sm font-medium text-zinc-300">
-                  <svg className="w-4 h-4 text-zinc-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                  <svg className="w-4 h-4 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                   {bounty.applicants || 0} Developers
                 </div>
               </div>
@@ -703,18 +726,18 @@ export default function BountyDetailPage() {
 
             {/* Smart Contract Info */}
             <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl p-5 flex flex-col gap-3">
-              <h3 className="text-xs font-medium text-zinc-500 uppercase tracking-wider">Contract Details</h3>
+              <h3 className="text-xs font-medium text-zinc-400 uppercase tracking-wider">Contract Details</h3>
               <div className="flex flex-col gap-2">
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-zinc-500">Escrow</span>
+                  <span className="text-zinc-400">Escrow</span>
                   <span className="text-zinc-300 font-mono text-xs">{bounty.escrowContract.split(" ")[0]}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-zinc-500">Oracle</span>
+                  <span className="text-zinc-400">Oracle</span>
                   <span className="text-zinc-300">GitHub Verified</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-zinc-500">Network</span>
+                  <span className="text-zinc-400">Network</span>
                   <span className="text-emerald-400 text-xs font-medium flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                     Soroban Testnet

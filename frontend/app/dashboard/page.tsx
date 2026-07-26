@@ -26,11 +26,32 @@ export default function DashboardPage() {
   const router = useRouter();
   const { address, kit, connect, disconnect } = useWallet();
   const [activeTab, setActiveTab] = useState<"All" | "Beginner" | "Intermediate" | "Advanced" | "My Work" | "Manage">("All");
+  const [userRole, setUserRole] = useState<"developer" | "funder" | null>(null);
   
   const [xlmBalance, setXlmBalance] = useState<string>("0.00");
   const [usdcBalance, setUsdcBalance] = useState<string>("0.00");
   const [badgeCount, setBadgeCount] = useState<number>(0);
   const [bounties, setBounties] = useState<Bounty[]>([]);
+
+  // Fetch user role
+  useEffect(() => {
+    if (!address) return;
+    async function fetchUserRole() {
+      try {
+        const { db } = await import("@/utils/firebase");
+        const { doc, getDoc } = await import("firebase/firestore");
+        const docSnap = await getDoc(doc(db, "users", address!));
+        if (docSnap.exists()) {
+          const role = docSnap.data().role;
+          setUserRole(role);
+          if (role === "funder") setActiveTab("Manage");
+        }
+      } catch (err) {
+        console.error("Failed to fetch user role:", err);
+      }
+    }
+    fetchUserRole();
+  }, [address]);
 
   // Fetch bounties from Firebase (Real-time)
   useEffect(() => {
@@ -139,13 +160,11 @@ export default function DashboardPage() {
     }
   };
 
-  const filteredBounties = activeTab === "Manage" 
-    ? bounties.filter(b => b.funder === address)
-    : activeTab === "My Work"
-      ? bounties.filter(b => b.assignedTo === address || b.applicantList?.includes(address || ""))
-      : activeTab === "All"
-        ? bounties.filter(b => b.status === "open")
-        : bounties.filter(b => b.status === "open" && b.level === activeTab);
+  const filteredBounties = activeTab === "My Work"
+    ? bounties.filter(b => b.assignedTo === address || b.applicantList?.includes(address || ""))
+    : activeTab === "All"
+      ? bounties.filter(b => b.status === "open")
+      : bounties.filter(b => b.status === "open" && b.level === activeTab);
 
   // Generate real contribution activity data
   const chartData = useMemo(() => {
@@ -184,7 +203,7 @@ export default function DashboardPage() {
             <span className="font-semibold text-xl tracking-tight text-white">SoroHub</span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-6 text-sm font-medium text-zinc-400">
+          <div className="hidden sm:flex items-center gap-6 text-sm font-medium text-zinc-300">
             <span onClick={() => router.push("/")} className="hover:text-white cursor-pointer transition-colors">Overview</span>
             <span onClick={() => router.push("/dashboard")} className="text-white cursor-pointer transition-colors">Bounties</span>
             <span onClick={() => router.push("/profile")} className="hover:text-white cursor-pointer transition-colors">Profile</span>
@@ -212,7 +231,7 @@ export default function DashboardPage() {
               </div>
               <button 
                 onClick={disconnect}
-                className="text-xs font-medium text-zinc-400 hover:text-red-400 transition-colors border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full"
+                className="text-xs font-medium text-zinc-300 hover:text-red-400 transition-colors border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full"
               >
                 Disconnect
               </button>
@@ -235,13 +254,27 @@ export default function DashboardPage() {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold text-white tracking-tight mb-2">Dashboard</h1>
-              <p className="text-sm text-zinc-400">Manage your bounties, track payouts, and view your on-chain reputation.</p>
+              <p className="text-sm text-zinc-300">Manage your bounties, track payouts, and view your on-chain reputation.</p>
             </div>
             
-            <div className="flex items-center gap-3 self-start sm:self-auto">
+            <div className="flex flex-wrap items-center gap-3 self-start sm:self-auto">
+              <button 
+                onClick={() => router.push("/#guide")}
+                className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-medium text-sm px-4 py-2.5 rounded-lg transition-all flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                Guide
+              </button>
+              <button 
+                onClick={() => router.push("/manage")}
+                className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white font-medium text-sm px-4 py-2.5 rounded-lg transition-all flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                Manage My Bounties
+              </button>
               <button 
                 onClick={() => router.push("/create")}
-                className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm px-6 py-2.5 rounded-lg transition-all shadow-[0_0_15px_rgba(99,102,241,0.2)] hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] flex items-center justify-center gap-2"
+                className="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm px-4 py-2.5 rounded-lg transition-all shadow-[0_0_15px_rgba(99,102,241,0.2)] hover:shadow-[0_0_20px_rgba(99,102,241,0.3)] flex items-center justify-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                 Fund a Bounty
@@ -253,18 +286,18 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex flex-col hover:bg-white/[0.04] transition-colors relative overflow-hidden">
               <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 blur-2xl rounded-full pointer-events-none" />
-              <span className="text-xs font-medium text-zinc-400 mb-2 flex items-center gap-2">
+              <span className="text-xs font-medium text-zinc-300 mb-2 flex items-center gap-2">
                 <svg className="w-3.5 h-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 Total Earned
               </span>
               <div className="text-2xl font-bold text-white mb-1 flex items-baseline gap-2">
-                {bounties.filter(b => b.status === "completed").reduce((sum, b) => sum + (parseInt(b.rewardAmount) || 0), 0)} <span className="text-sm text-zinc-500 font-medium">XLM</span>
+                {bounties.filter(b => b.status === "completed").reduce((sum, b) => sum + (parseInt(b.rewardAmount) || 0), 0)} <span className="text-sm text-zinc-400 font-medium">XLM</span>
               </div>
             </div>
 
             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex flex-col hover:bg-white/[0.04] transition-colors relative overflow-hidden">
               <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/10 blur-2xl rounded-full pointer-events-none" />
-              <span className="text-xs font-medium text-zinc-400 mb-2 flex items-center gap-2">
+              <span className="text-xs font-medium text-zinc-300 mb-2 flex items-center gap-2">
                 <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                 Wallet Balances
               </span>
@@ -282,21 +315,21 @@ export default function DashboardPage() {
 
             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex flex-col hover:bg-white/[0.04] transition-colors relative overflow-hidden">
               <div className="absolute top-0 right-0 w-20 h-20 bg-amber-500/10 blur-2xl rounded-full pointer-events-none" />
-              <span className="text-xs font-medium text-zinc-400 mb-2 flex items-center gap-2">
+              <span className="text-xs font-medium text-zinc-300 mb-2 flex items-center gap-2">
                 <svg className="w-3.5 h-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 Completed Issues
               </span>
               <div className="text-2xl font-bold text-white mb-2 relative z-10">
-                {bounties.filter(b => b.status === "completed").length}
+                {bounties.filter(b => b.status === "completed" && b.assignedTo === address).length}
               </div>
               <div className="text-[10px] font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded w-fit relative z-10">
-                {bounties.filter(b => b.status === "assigned").length} Pending Review
+                {bounties.filter(b => b.status === "assigned" && b.assignedTo === address).length} Pending Review
               </div>
             </div>
 
             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex flex-col hover:bg-white/[0.04] transition-colors relative overflow-hidden">
               <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 blur-2xl rounded-full pointer-events-none" />
-              <span className="text-xs font-medium text-zinc-400 mb-2 flex items-center gap-2">
+              <span className="text-xs font-medium text-zinc-300 mb-2 flex items-center gap-2">
                 <svg className="w-3.5 h-3.5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
                 Soulbound Badges
               </span>
@@ -316,9 +349,15 @@ export default function DashboardPage() {
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   <h2 className="text-base font-semibold text-white">Open Bounties</h2>
-                  <div className="flex bg-white/5 border border-white/10 rounded-lg p-1">
+                  <div className="flex bg-white/5 border border-white/10 rounded-lg p-1 overflow-x-auto">
                     {(address 
-                      ? ["All", "Beginner", "Intermediate", "Advanced", "My Work", "Manage"] 
+                      ? [
+                          "All", 
+                          "Beginner", 
+                          "Intermediate", 
+                          "Advanced", 
+                          "My Work"
+                        ]
                       : ["All", "Beginner", "Intermediate", "Advanced"]
                     ).map((tab) => (
                       <button
@@ -327,7 +366,7 @@ export default function DashboardPage() {
                         className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
                           activeTab === tab
                             ? "bg-white text-black shadow-sm"
-                            : "text-zinc-400 hover:text-white"
+                            : "text-zinc-300 hover:text-white"
                         }`}
                       >
                         {tab}
@@ -345,7 +384,7 @@ export default function DashboardPage() {
                       <h3 className="text-lg font-medium text-white mb-2">
                         {activeTab === "My Work" ? "No Active Work" : activeTab === "Manage" ? "No Managed Bounties" : "No Active Bounties"}
                       </h3>
-                      <p className="text-sm text-zinc-400 max-w-sm mx-auto mb-6">
+                      <p className="text-sm text-zinc-300 max-w-sm mx-auto mb-6">
                         {activeTab === "My Work" 
                           ? "You haven't applied to or been assigned any bounties yet. Browse open issues to get started!" 
                           : activeTab === "Manage" 
@@ -374,11 +413,11 @@ export default function DashboardPage() {
                           onClick={() => router.push(`/bounty/${bounty.id}`)}
                         >
                           <div className="flex items-center gap-3">
-                            <span className="text-xs font-mono font-medium text-zinc-500 bg-white/5 px-2 py-0.5 rounded">#{bounty.id}</span>
+                            <span className="text-xs font-mono font-medium text-zinc-400 bg-white/5 px-2 py-0.5 rounded">#{bounty.id}</span>
                             <span className="text-sm font-semibold text-white group-hover:text-indigo-400 transition-colors">{bounty.title}</span>
                           </div>
                           <div className="flex items-center gap-3 text-xs font-medium">
-                            <span className="text-zinc-400">{bounty.repo}</span>
+                            <span className="text-zinc-300">{bounty.repo}</span>
                             <span className="w-1 h-1 rounded-full bg-zinc-700" />
                             <span className="text-emerald-400">{bounty.level}</span>
                             <span className="w-1 h-1 rounded-full bg-zinc-700" />
@@ -402,11 +441,11 @@ export default function DashboardPage() {
                           <div className="flex items-center gap-6 sm:justify-end cursor-pointer" onClick={() => router.push(`/bounty/${bounty.id}`)}>
                             <div className="flex flex-col sm:items-end gap-1">
                               <span className="text-sm font-bold text-white">
-                                {bounty.rewardAmount} <span className="text-zinc-500">{bounty.asset}</span>
+                                {bounty.rewardAmount} <span className="text-zinc-400">{bounty.asset}</span>
                               </span>
-                              <span className="text-xs text-zinc-500">{bounty.applicants || 0} applicants</span>
+                              <span className="text-xs text-zinc-400">{bounty.applicants || 0} applicants</span>
                             </div>
-                            <div className="hidden sm:flex text-zinc-500 hover:text-indigo-400 hover:translate-x-1 transition-all">
+                            <div className="hidden sm:flex text-zinc-400 hover:text-indigo-400 hover:translate-x-1 transition-all">
                               <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                             </div>
                           </div>
@@ -414,7 +453,7 @@ export default function DashboardPage() {
                           {activeTab === "Manage" && (
                             <div className="mt-2 flex flex-col gap-2 w-full max-w-xs">
                               {bounty.status === "open" && bounty.applicantList && bounty.applicantList.length > 0 && (
-                                <div className="text-xs text-zinc-400">
+                                <div className="text-xs text-zinc-300">
                                   <div className="font-semibold text-zinc-300 mb-2">Applicants:</div>
                                   {bounty.applicantList.map((app) => {
                                     const profile = bounty.applicantProfiles?.[app] || {};
@@ -432,15 +471,36 @@ export default function DashboardPage() {
                                         {(profile.github || profile.portfolio) && (
                                           <div className="flex items-center gap-2 text-[10px] border-t border-white/5 pt-1 mt-0.5">
                                             {profile.github && (
-                                              <a href={profile.github} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="text-zinc-400 hover:text-white flex items-center gap-1">
+                                              <a 
+                                                href={profile.github.startsWith('http') ? profile.github : `https://${profile.github.includes('github.com') ? profile.github : 'github.com/' + profile.github}`} 
+                                                target="_blank" 
+                                                rel="noreferrer" 
+                                                onClick={(e) => e.stopPropagation()} 
+                                                className="text-zinc-300 hover:text-white flex items-center gap-1"
+                                              >
                                                 <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"/></svg>
                                                 GitHub
                                               </a>
                                             )}
                                             {profile.portfolio && (
-                                              <a href={profile.portfolio} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="text-zinc-400 hover:text-white flex items-center gap-1">
-                                                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                                                Portfolio
+                                              <a 
+                                                href={profile.portfolio.includes('@') && !profile.portfolio.startsWith('http') ? `mailto:${profile.portfolio}` : (profile.portfolio.startsWith('http') ? profile.portfolio : `https://${profile.portfolio}`)} 
+                                                target="_blank" 
+                                                rel="noreferrer" 
+                                                onClick={(e) => e.stopPropagation()} 
+                                                className="text-zinc-300 hover:text-white flex items-center gap-1"
+                                              >
+                                                {profile.portfolio.includes('@') && !profile.portfolio.startsWith('http') ? (
+                                                  <>
+                                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                                                    Email
+                                                  </>
+                                                ) : (
+                                                  <>
+                                                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                                    Portfolio
+                                                  </>
+                                                )}
                                               </a>
                                             )}
                                           </div>
@@ -491,7 +551,7 @@ export default function DashboardPage() {
                     );
                   })}
                 </div>
-                <div className="flex justify-between mt-3 text-[10px] font-medium text-zinc-500 relative z-10">
+                <div className="flex justify-between mt-3 text-[10px] font-medium text-zinc-400 relative z-10">
                   <span>Jul 1</span>
                   <span>Jul 15</span>
                   <span>Jul 30</span>
@@ -523,13 +583,13 @@ export default function DashboardPage() {
                         <p className="text-sm font-semibold text-white">
                           {b.status === "completed" ? "Bounty Completed" : b.status === "assigned" ? "Bounty Assigned" : "Bounty Created"}
                         </p>
-                        <p className="text-xs text-zinc-400 mt-1 line-clamp-1">{b.title}</p>
+                        <p className="text-xs text-zinc-300 mt-1 line-clamp-1">{b.title}</p>
                         <p className="text-xs font-medium text-emerald-400 mt-2">{b.rewardAmount} {b.asset}</p>
                       </div>
                     </div>
                   ))}
                   {bounties.length === 0 && (
-                    <p className="text-sm text-zinc-500 text-center py-4">No recent activity yet.</p>
+                    <p className="text-sm text-zinc-400 text-center py-4">No recent activity yet.</p>
                   )}
                 </div>
               </div>
@@ -545,19 +605,19 @@ export default function DashboardPage() {
                   <div className="relative pl-10">
                     <div className="absolute left-[11px] top-1.5 w-2.5 h-2.5 rounded-full bg-blue-400 ring-4 ring-[#0a0a0a]" />
                     <p className="text-sm font-semibold text-white">Wallet Connected</p>
-                    <p className="text-xs text-zinc-400 mt-0.5">Session initialized</p>
+                    <p className="text-xs text-zinc-300 mt-0.5">Session initialized</p>
                   </div>
                   
                   <div className="relative pl-10">
                     <div className="absolute left-[11px] top-1.5 w-2.5 h-2.5 rounded-full bg-purple-400 ring-4 ring-[#0a0a0a]" />
                     <p className="text-sm font-semibold text-white">Passport Verified</p>
-                    <p className="text-xs text-zinc-400 mt-0.5">Badges loaded for {address.slice(0, 4)}...{address.slice(-4)}</p>
+                    <p className="text-xs text-zinc-300 mt-0.5">Badges loaded for {address.slice(0, 4)}...{address.slice(-4)}</p>
                   </div>
 
                   <div className="relative pl-10">
                     <div className="absolute left-[11px] top-1.5 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-4 ring-[#0a0a0a]" />
                     <p className="text-sm font-semibold text-white">Balances Synced</p>
-                    <p className="text-xs text-zinc-400 mt-0.5">Horizon RPC connected</p>
+                    <p className="text-xs text-zinc-300 mt-0.5">Horizon RPC connected</p>
                   </div>
                 </div>
               </div>
@@ -575,7 +635,7 @@ export default function DashboardPage() {
             <h1 className="text-4xl font-bold text-white tracking-tight mb-4">
               Connect your wallet
             </h1>
-            <p className="text-zinc-400 text-lg leading-relaxed">
+            <p className="text-zinc-300 text-lg leading-relaxed">
               Sign in with your Stellar wallet to view your developer passport, track your payouts, and apply for open bounties.
             </p>
             <button

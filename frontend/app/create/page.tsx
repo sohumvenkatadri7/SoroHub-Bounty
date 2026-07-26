@@ -97,7 +97,7 @@ export default function CreateBountyPage() {
             <span className="font-semibold text-xl tracking-tight text-white">SoroHub</span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-6 text-sm font-medium text-zinc-400">
+          <div className="hidden sm:flex items-center gap-6 text-sm font-medium text-zinc-300">
             <span onClick={() => router.push("/")} className="hover:text-white cursor-pointer transition-colors">Overview</span>
             <span onClick={() => router.push("/dashboard")} className="hover:text-white cursor-pointer transition-colors">Bounties</span>
             <span onClick={() => router.push("/profile")} className="hover:text-white cursor-pointer transition-colors">Profile</span>
@@ -124,7 +124,7 @@ export default function CreateBountyPage() {
               </div>
               <button 
                 onClick={disconnect}
-                className="text-xs font-medium text-zinc-400 hover:text-red-400 transition-colors border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full"
+                className="text-xs font-medium text-zinc-300 hover:text-red-400 transition-colors border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full"
               >
                 Disconnect
               </button>
@@ -140,7 +140,7 @@ export default function CreateBountyPage() {
       {/* Main Form Content */}
       <main className="max-w-3xl mx-auto px-6 py-12 relative z-10 w-full flex-1 flex flex-col">
         
-        <div className="flex items-center gap-2 text-sm text-zinc-500 mb-8">
+        <div className="flex items-center gap-2 text-sm text-zinc-400 mb-8">
           <span className="hover:text-zinc-300 cursor-pointer transition-colors" onClick={() => router.push("/dashboard")}>Dashboard</span>
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           <span className="text-zinc-300">Create Bounty</span>
@@ -148,7 +148,7 @@ export default function CreateBountyPage() {
 
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-white tracking-tight mb-2">Create New Bounty</h1>
-          <p className="text-sm text-zinc-400">Fund an open-source issue and let the SoroHub escrow handle the payouts.</p>
+          <p className="text-sm text-zinc-300">Fund an open-source issue and let the SoroHub escrow handle the payouts.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 sm:p-8 flex flex-col gap-6 shadow-2xl relative">
@@ -239,7 +239,7 @@ export default function CreateBountyPage() {
                   value={formData.amount}
                   onChange={(e) => setFormData({...formData, amount: e.target.value})}
                 />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-500 pointer-events-none">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-400 pointer-events-none">
                   {formData.asset}
                 </div>
               </div>
@@ -264,7 +264,7 @@ export default function CreateBountyPage() {
               </div>
               <div>
                 <h3 className="text-indigo-400 font-semibold mb-1">Bounty Funded!</h3>
-                <p className="text-xs text-zinc-400 break-all bg-black/30 p-2 rounded border border-white/5 font-mono">
+                <p className="text-xs text-zinc-300 break-all bg-black/30 p-2 rounded border border-white/5 font-mono">
                   Tx: {txHash}
                 </p>
               </div>

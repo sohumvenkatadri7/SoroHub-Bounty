@@ -34,6 +34,17 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
     const savedAddress = localStorage.getItem("sorohub_wallet_address");
     if (savedAddress) {
       setAddress(savedAddress);
+      
+      // Background check for registration
+      import("@/utils/firebase").then(({ db }) => {
+        import("firebase/firestore").then(({ doc, getDoc }) => {
+          getDoc(doc(db, "users", savedAddress)).then((docSnap) => {
+            if (!docSnap.exists() && window.location.pathname !== "/onboarding") {
+              window.location.href = "/onboarding";
+            }
+          });
+        });
+      });
     }
   }, []);
 
@@ -50,6 +61,17 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
       const { address: publicKey } = await StellarWalletsKit.authModal();
       setAddress(publicKey);
       localStorage.setItem("sorohub_wallet_address", publicKey);
+
+      // Check if user is registered
+      const { db } = await import("@/utils/firebase");
+      const { doc, getDoc } = await import("firebase/firestore");
+      const docSnap = await getDoc(doc(db, "users", publicKey));
+      
+      if (!docSnap.exists()) {
+        router.push("/onboarding");
+      } else {
+        router.push("/dashboard");
+      }
       return true;
     } catch (error: any) {
       // The modal throws errors on user cancellation or if the extension is not installed.

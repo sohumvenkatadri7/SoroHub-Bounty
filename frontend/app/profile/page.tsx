@@ -134,7 +134,7 @@ export default function ProfilePage() {
             <span className="font-semibold text-xl tracking-tight text-white">SoroHub</span>
           </div>
 
-          <div className="hidden sm:flex items-center gap-6 text-sm font-medium text-zinc-400">
+          <div className="hidden sm:flex items-center gap-6 text-sm font-medium text-zinc-300">
             <span onClick={() => router.push("/")} className="hover:text-white cursor-pointer transition-colors">Overview</span>
             <span onClick={() => router.push("/dashboard")} className="hover:text-white cursor-pointer transition-colors">Bounties</span>
             <span onClick={() => router.push("/profile")} className="text-white cursor-pointer transition-colors">Profile</span>
@@ -160,7 +160,7 @@ export default function ProfilePage() {
               </div>
               <button 
                 onClick={disconnect}
-                className="text-xs font-medium text-zinc-400 hover:text-red-400 transition-colors border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full"
+                className="text-xs font-medium text-zinc-300 hover:text-red-400 transition-colors border border-white/10 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full"
               >
                 Disconnect
               </button>
@@ -205,7 +205,7 @@ export default function ProfilePage() {
                   </h1>
                   <div className="flex items-center gap-3">
                     <span 
-                      className="font-mono text-zinc-400 bg-white/5 px-3 py-1 rounded-md text-sm border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
+                      className="font-mono text-zinc-300 bg-white/5 px-3 py-1 rounded-md text-sm border border-white/10 cursor-pointer hover:bg-white/10 transition-colors"
                       title="Copy to clipboard"
                       onClick={() => navigator.clipboard.writeText(address || "")}
                     >
@@ -228,7 +228,7 @@ export default function ProfilePage() {
                   <h2 className="text-lg font-semibold text-white mb-4">Public Links</h2>
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-2">
-                      <label className="text-xs font-medium text-zinc-400 uppercase tracking-wider">Display Name</label>
+                      <label className="text-xs font-medium text-zinc-300 uppercase tracking-wider">Display Name</label>
                       <input 
                         type="text"
                         value={name}
@@ -238,7 +238,7 @@ export default function ProfilePage() {
                       />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-xs font-medium text-zinc-400 uppercase tracking-wider">GitHub Profile URL</label>
+                      <label className="text-xs font-medium text-zinc-300 uppercase tracking-wider">GitHub Profile URL</label>
                       <input 
                         type="url"
                         value={github}
@@ -248,7 +248,7 @@ export default function ProfilePage() {
                       />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <label className="text-xs font-medium text-zinc-400 uppercase tracking-wider">Portfolio / Twitter URL</label>
+                      <label className="text-xs font-medium text-zinc-300 uppercase tracking-wider">Portfolio / Twitter URL</label>
                       <input 
                         type="url"
                         value={portfolio}
@@ -318,7 +318,7 @@ export default function ProfilePage() {
                   <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-5 flex flex-col items-center justify-center text-center relative overflow-hidden">
                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(52,211,153,0.1)_0%,transparent_70%)] pointer-events-none"></div>
                     <span className="text-3xl font-bold text-white mb-1 relative z-10 flex items-baseline justify-center gap-1">
-                      {totalEarned} <span className="text-base text-zinc-500 font-medium">XLM</span>
+                      {totalEarned} <span className="text-base text-zinc-400 font-medium">XLM</span>
                     </span>
                     <span className="text-xs font-medium text-emerald-400 uppercase tracking-wider relative z-10">
                       Total Bounty Earnings
@@ -334,7 +334,7 @@ export default function ProfilePage() {
                         <div key={b.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-black/40 p-4 rounded-xl border border-white/5 hover:bg-white/5 transition-colors cursor-pointer" onClick={() => router.push(`/bounty/${b.id}`)}>
                           <div>
                             <h3 className="text-sm font-semibold text-white mb-1">{b.title}</h3>
-                            <p className="text-xs text-zinc-500 font-mono">{b.repo}</p>
+                            <p className="text-xs text-zinc-400 font-mono">{b.repo}</p>
                           </div>
                           <div className="flex items-center gap-3 shrink-0">
                             <span className="text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded">
@@ -346,7 +346,7 @@ export default function ProfilePage() {
                     ) : (
                       <div className="text-center py-10 bg-black/40 rounded-xl border border-white/5 border-dashed">
                         <svg className="w-8 h-8 text-zinc-600 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-                        <p className="text-sm text-zinc-400 font-medium">No completed bounties yet.</p>
+                        <p className="text-sm text-zinc-300 font-medium">No completed bounties yet.</p>
                         <p className="text-xs text-zinc-600 mt-1">Start contributing to earn badges and rewards.</p>
                       </div>
                     )}
