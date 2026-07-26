@@ -122,13 +122,12 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen font-sans bg-[#000000] text-zinc-100 flex flex-col relative selection:bg-indigo-500/30 overflow-hidden">
+    <div className="min-h-screen font-sans bg-black text-zinc-100 flex flex-col relative selection:bg-zinc-800">
       
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none mix-blend-overlay"></div>
-      <div className="absolute -top-40 -right-40 w-96 h-96 bg-indigo-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+      <div className="absolute -top-40 -right-40 w-96 h-96 bg-zinc-900/30 blur-[120px] rounded-full pointer-events-none"></div>
 
-      <header className="sticky top-0 z-50 border-b border-white/5 bg-black/60 backdrop-blur-xl px-6 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-50 border-b border-zinc-800 bg-[#0a0a0a]/80 backdrop-blur-xl px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3 cursor-pointer group" onClick={() => router.push("/")}>
             <span className="font-semibold text-xl tracking-tight text-white">SoroHub</span>
@@ -193,10 +192,9 @@ export default function ProfilePage() {
             {/* Profile Header */}
             <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 pb-8 border-b border-white/10">
               <div className="flex items-center gap-6">
-                <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-1 shadow-[0_0_30px_rgba(99,102,241,0.3)]">
-                  <div className="w-full h-full bg-[#0a0a0a] rounded-xl flex items-center justify-center overflow-hidden relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 mix-blend-overlay"></div>
-                    <svg className="w-12 h-12 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                <div className="w-24 h-24 rounded-2xl bg-zinc-800 p-1">
+                  <div className="w-full h-full bg-zinc-900 rounded-xl flex items-center justify-center overflow-hidden relative">
+                    <svg className="w-12 h-12 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                   </div>
                 </div>
                 <div>
@@ -224,43 +222,43 @@ export default function ProfilePage() {
               
               {/* Left Column: Settings */}
               <div className="md:col-span-1 flex flex-col gap-6">
-                <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+                <div className="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6 shadow-xl">
                   <h2 className="text-lg font-semibold text-white mb-4">Public Links</h2>
                   <div className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs font-medium text-zinc-300 uppercase tracking-wider">Display Name</label>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[13px] font-medium text-zinc-300">Display Name</label>
                       <input 
                         type="text"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                         placeholder="e.g. CryptoDev99"
-                        className="w-full bg-black/50 border border-white/10 text-white rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-zinc-400 focus:border-zinc-400 focus:bg-[#0a0a0a] transition-all shadow-sm"
                       />
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs font-medium text-zinc-300 uppercase tracking-wider">GitHub Profile URL</label>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[13px] font-medium text-zinc-300">GitHub Profile URL</label>
                       <input 
                         type="url"
                         value={github}
                         onChange={(e) => setGithub(e.target.value)}
                         placeholder="https://github.com/..."
-                        className="w-full bg-black/50 border border-white/10 text-white rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-zinc-400 focus:border-zinc-400 focus:bg-[#0a0a0a] transition-all shadow-sm"
                       />
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs font-medium text-zinc-300 uppercase tracking-wider">Portfolio / Twitter URL</label>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-[13px] font-medium text-zinc-300">Portfolio / Twitter URL</label>
                       <input 
                         type="url"
                         value={portfolio}
                         onChange={(e) => setPortfolio(e.target.value)}
                         placeholder="https://..."
-                        className="w-full bg-black/50 border border-white/10 text-white rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:border-indigo-500 transition-colors"
+                        className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-zinc-400 focus:border-zinc-400 focus:bg-[#0a0a0a] transition-all shadow-sm"
                       />
                     </div>
                     <button 
                       onClick={saveProfile}
                       disabled={isSaving}
-                      className="mt-2 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm px-4 py-2.5 rounded-lg transition-colors disabled:opacity-50"
+                      className="mt-2 flex w-full justify-center rounded-md bg-white text-black py-2 px-4 text-sm font-medium hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black transition-colors disabled:opacity-70 shadow-sm"
                     >
                       {isSaving ? "Saving..." : "Save Profile"}
                     </button>
@@ -268,7 +266,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+                <div className="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6 shadow-xl">
                   <h2 className="text-lg font-semibold text-white mb-4">Wallet Balances</h2>
                   <div className="flex flex-col gap-3">
                     <div className="flex items-center justify-between bg-black/40 p-3 rounded-lg border border-white/5">

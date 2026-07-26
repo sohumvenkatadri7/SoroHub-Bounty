@@ -284,57 +284,53 @@ export default function DashboardPage() {
 
           {/* Key Metrics */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex flex-col hover:bg-white/[0.04] transition-colors relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 blur-2xl rounded-full pointer-events-none" />
-              <span className="text-xs font-medium text-zinc-300 mb-2 flex items-center gap-2">
-                <svg className="w-3.5 h-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <div className="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-5 flex flex-col shadow-sm">
+              <span className="text-[13px] font-medium text-zinc-400 mb-3 flex items-center gap-2">
+                <svg className="w-4 h-4 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 Total Earned
               </span>
-              <div className="text-2xl font-bold text-white mb-1 flex items-baseline gap-2">
-                {bounties.filter(b => b.status === "completed").reduce((sum, b) => sum + (parseInt(b.rewardAmount) || 0), 0)} <span className="text-sm text-zinc-400 font-medium">XLM</span>
+              <div className="text-2xl font-semibold text-white flex items-baseline gap-1.5">
+                {bounties.filter(b => b.status === "completed").reduce((sum, b) => sum + (parseInt(b.rewardAmount) || 0), 0)} <span className="text-[13px] text-zinc-500 font-medium">XLM</span>
               </div>
             </div>
 
-            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex flex-col hover:bg-white/[0.04] transition-colors relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/10 blur-2xl rounded-full pointer-events-none" />
-              <span className="text-xs font-medium text-zinc-300 mb-2 flex items-center gap-2">
-                <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
+            <div className="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-5 flex flex-col shadow-sm">
+              <span className="text-[13px] font-medium text-zinc-400 mb-3 flex items-center gap-2">
+                <svg className="w-4 h-4 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                 Wallet Balances
               </span>
-              <div className="flex flex-col gap-1 relative z-10">
-                <div className="flex justify-between items-end">
-                  <span className="text-xl font-bold text-white">{xlmBalance}</span>
-                  <span className="text-xs font-medium text-emerald-400 mb-0.5">XLM</span>
+              <div className="flex flex-col gap-1.5">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xl font-semibold text-white">{xlmBalance}</span>
+                  <span className="text-[11px] font-medium text-zinc-500">XLM</span>
                 </div>
-                <div className="flex justify-between items-end">
-                  <span className="text-xl font-bold text-white">{usdcBalance}</span>
-                  <span className="text-xs font-medium text-blue-400 mb-0.5">USDC</span>
+                <div className="flex justify-between items-baseline">
+                  <span className="text-xl font-semibold text-white">{usdcBalance}</span>
+                  <span className="text-[11px] font-medium text-zinc-500">USDC</span>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex flex-col hover:bg-white/[0.04] transition-colors relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-20 h-20 bg-amber-500/10 blur-2xl rounded-full pointer-events-none" />
-              <span className="text-xs font-medium text-zinc-300 mb-2 flex items-center gap-2">
-                <svg className="w-3.5 h-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <div className="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-5 flex flex-col shadow-sm">
+              <span className="text-[13px] font-medium text-zinc-400 mb-3 flex items-center gap-2">
+                <svg className="w-4 h-4 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 Completed Issues
               </span>
-              <div className="text-2xl font-bold text-white mb-2 relative z-10">
+              <div className="text-2xl font-semibold text-white mb-2.5">
                 {bounties.filter(b => b.status === "completed" && b.assignedTo === address).length}
               </div>
-              <div className="text-[10px] font-semibold text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded w-fit relative z-10">
+              <div className="text-[11px] font-medium text-zinc-500">
                 {bounties.filter(b => b.status === "assigned" && b.assignedTo === address).length} Pending Review
               </div>
             </div>
 
-            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex flex-col hover:bg-white/[0.04] transition-colors relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-20 h-20 bg-purple-500/10 blur-2xl rounded-full pointer-events-none" />
-              <span className="text-xs font-medium text-zinc-300 mb-2 flex items-center gap-2">
-                <svg className="w-3.5 h-3.5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
+            <div className="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-5 flex flex-col shadow-sm">
+              <span className="text-[13px] font-medium text-zinc-400 mb-3 flex items-center gap-2">
+                <svg className="w-4 h-4 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" /></svg>
                 Soulbound Badges
               </span>
-              <div className="text-2xl font-bold text-white mb-2 relative z-10">{badgeCount}</div>
-              <div className="text-[10px] font-semibold text-purple-400 bg-purple-400/10 border border-purple-400/20 px-2 py-0.5 rounded w-fit relative z-10">
+              <div className="text-2xl font-semibold text-white mb-2.5">{badgeCount}</div>
+              <div className="text-[11px] font-medium text-zinc-500">
                 Verified On-Chain
               </div>
             </div>

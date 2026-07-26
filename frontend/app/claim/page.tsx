@@ -120,39 +120,39 @@ export default function ClaimBountyPage() {
         <h1 className="text-3xl font-bold text-white mb-2">Approve Pull Request</h1>
         <p className="text-zinc-300 text-sm mb-10">Release escrowed funds and mint a soulbound badge to the developer who completed the task.</p>
 
-        <form onSubmit={handleSubmit} className="space-y-6 bg-[#0a0a0a] p-8 rounded-2xl border border-white/10">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-300">Bounty ID</label>
+        <form onSubmit={handleSubmit} className="space-y-6 bg-[#0a0a0a] p-8 rounded-xl border border-zinc-800 shadow-xl">
+          <div className="space-y-1.5">
+            <label className="block text-[13px] font-medium text-zinc-300">Bounty ID</label>
             <input
               required
               placeholder="e.g. 5900"
               value={formData.bountyId}
               onChange={(e) => setFormData({ ...formData, bountyId: e.target.value })}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+              className="block w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2.5 text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 focus:bg-[#0a0a0a] transition-all text-sm shadow-sm"
             />
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-300">Developer Stellar Address</label>
+          <div className="space-y-1.5">
+            <label className="block text-[13px] font-medium text-zinc-300">Developer Stellar Address</label>
             <input
               required
               placeholder="GABC..."
               value={formData.developerAddress}
               onChange={(e) => setFormData({ ...formData, developerAddress: e.target.value })}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all font-mono text-sm"
+              className="block w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2.5 text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 focus:bg-[#0a0a0a] transition-all font-mono text-sm shadow-sm"
             />
-            <p className="text-xs text-zinc-400 mt-1">This address will receive the USDC/XLM and the NFT Badge.</p>
+            <p className="text-[11px] text-zinc-500 font-medium">This address will receive the USDC/XLM and the NFT Badge.</p>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-300">Merged Pull Request URL</label>
+          <div className="space-y-1.5">
+            <label className="block text-[13px] font-medium text-zinc-300">Merged Pull Request URL</label>
             <input
               required
               type="url"
               placeholder="https://github.com/..."
               value={formData.prUrl}
               onChange={(e) => setFormData({ ...formData, prUrl: e.target.value })}
-              className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-zinc-600 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+              className="block w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2.5 text-white placeholder-zinc-600 focus:outline-none focus:border-zinc-400 focus:ring-1 focus:ring-zinc-400 focus:bg-[#0a0a0a] transition-all text-sm shadow-sm"
             />
           </div>
 
@@ -160,7 +160,7 @@ export default function ClaimBountyPage() {
             <button
               type="submit"
               disabled={isSubmitting || !address}
-              className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)] disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+              className="flex w-full justify-center rounded-md bg-white text-black py-2.5 px-4 text-sm font-medium hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black transition-colors disabled:opacity-70 shadow-sm mt-6"
             >
               {isSubmitting ? "Approving on Soroban..." : "Approve & Release Funds"}
             </button>

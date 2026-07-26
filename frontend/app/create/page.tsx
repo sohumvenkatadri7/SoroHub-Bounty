@@ -151,36 +151,36 @@ export default function CreateBountyPage() {
           <p className="text-sm text-zinc-300">Fund an open-source issue and let the SoroHub escrow handle the payouts.</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 sm:p-8 flex flex-col gap-6 shadow-2xl relative">
+        <form onSubmit={handleSubmit} className="bg-[#0a0a0a] border border-zinc-800 rounded-xl p-6 sm:p-8 flex flex-col gap-6 shadow-xl relative">
           
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-zinc-300">Bounty Title</label>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[13px] font-medium text-zinc-300">Bounty Title</label>
             <input 
               type="text" 
               required
               placeholder="e.g. Implement Soroban SAC Token Swap"
-              className="bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+              className="bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2.5 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-400 focus:border-zinc-400 focus:bg-[#0a0a0a] transition-all text-sm shadow-sm"
               value={formData.title}
               onChange={(e) => setFormData({...formData, title: e.target.value})}
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-zinc-300">GitHub Repository</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[13px] font-medium text-zinc-300">GitHub Repository</label>
               <input 
                 type="text" 
                 required
                 placeholder="e.g. sorohub/core-contracts"
-                className="bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+                className="bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2.5 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-400 focus:border-zinc-400 focus:bg-[#0a0a0a] transition-all text-sm shadow-sm"
                 value={formData.repo}
                 onChange={(e) => setFormData({...formData, repo: e.target.value})}
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-zinc-300">Difficulty Level</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[13px] font-medium text-zinc-300">Difficulty Level</label>
               <select 
-                className="bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all appearance-none"
+                className="bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2.5 text-white focus:outline-none focus:ring-1 focus:ring-zinc-400 focus:border-zinc-400 focus:bg-[#0a0a0a] transition-all text-sm shadow-sm appearance-none"
                 value={formData.level}
                 onChange={(e) => setFormData({...formData, level: e.target.value})}
               >
@@ -189,37 +189,37 @@ export default function CreateBountyPage() {
                 <option value="Advanced">Advanced</option>
               </select>
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-zinc-300">Deadline (Days)</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[13px] font-medium text-zinc-300">Deadline (Days)</label>
               <input 
                 type="number" 
                 required
                 min="1"
                 placeholder="e.g. 7"
-                className="bg-black/50 border border-white/10 rounded-lg px-4 py-2.5 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+                className="bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2.5 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-400 focus:border-zinc-400 focus:bg-[#0a0a0a] transition-all text-sm shadow-sm"
                 value={formData.deadlineDays}
                 onChange={(e) => setFormData({...formData, deadlineDays: e.target.value})}
               />
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-sm font-medium text-zinc-300">Description</label>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[13px] font-medium text-zinc-300">Description</label>
             <textarea 
               required
               rows={4}
               placeholder="Describe the issue, requirements, and acceptance criteria..."
-              className="bg-black/50 border border-white/10 rounded-lg px-4 py-3 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all resize-none"
+              className="bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2.5 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-400 focus:border-zinc-400 focus:bg-[#0a0a0a] transition-all text-sm shadow-sm resize-none"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
             />
           </div>
 
-          <div className="p-5 rounded-xl bg-indigo-500/5 border border-indigo-500/10 grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-indigo-300">Escrow Asset</label>
+          <div className="p-5 rounded-xl bg-zinc-900/50 border border-zinc-800 grid grid-cols-1 sm:grid-cols-2 gap-6 mt-2">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[13px] font-medium text-zinc-300">Escrow Asset</label>
               <select 
-                className="bg-black/50 border border-indigo-500/20 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all appearance-none"
+                className="bg-zinc-900 border border-zinc-700 rounded-md px-3 py-2.5 text-white focus:outline-none focus:ring-1 focus:ring-zinc-400 focus:border-zinc-400 focus:bg-[#0a0a0a] transition-all text-sm shadow-sm appearance-none"
                 value={formData.asset}
                 onChange={(e) => setFormData({...formData, asset: e.target.value})}
               >
@@ -227,19 +227,19 @@ export default function CreateBountyPage() {
                 <option value="USDC">USD Coin (USDC)</option>
               </select>
             </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-indigo-300">Reward Amount</label>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[13px] font-medium text-zinc-300">Reward Amount</label>
               <div className="relative">
                 <input 
                   type="number" 
                   required
                   min="1"
                   placeholder="e.g. 1500"
-                  className="w-full bg-black/50 border border-indigo-500/20 rounded-lg pl-4 pr-16 py-2.5 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all"
+                  className="w-full bg-zinc-900 border border-zinc-700 rounded-md pl-3 pr-16 py-2.5 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-400 focus:border-zinc-400 focus:bg-[#0a0a0a] transition-all text-sm shadow-sm"
                   value={formData.amount}
                   onChange={(e) => setFormData({...formData, amount: e.target.value})}
                 />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-zinc-400 pointer-events-none">
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-zinc-400 pointer-events-none">
                   {formData.asset}
                 </div>
               </div>
@@ -282,7 +282,7 @@ export default function CreateBountyPage() {
             <button 
               type="submit"
               disabled={isSubmitting}
-              className="mt-2 w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm px-6 py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(99,102,241,0.2)] hover:shadow-[0_0_30px_rgba(99,102,241,0.3)] flex items-center justify-center gap-2 disabled:opacity-50"
+              className="mt-4 flex w-full justify-center rounded-md bg-white text-black py-2.5 px-4 text-sm font-medium hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black transition-colors disabled:opacity-70 shadow-sm"
             >
               {isSubmitting ? (
                 "Processing Transaction..."
@@ -290,7 +290,7 @@ export default function CreateBountyPage() {
                 "Connect Wallet to Create"
               ) : (
                 <>
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                  <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                   Fund Bounty & Lock Escrow
                 </>
               )}

@@ -573,12 +573,12 @@ export default function BountyDetailPage() {
                   value={prLink}
                   onChange={(e) => setPrLink(e.target.value)}
                   placeholder="Paste GitHub PR Link..."
-                  className="w-full bg-zinc-900 border border-zinc-700 text-white rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-indigo-500" 
+                  className="w-full bg-zinc-900 border border-zinc-800 text-white rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-zinc-400 focus:border-zinc-400 focus:bg-[#0a0a0a] transition-all shadow-sm" 
                 />
                 <button 
                   onClick={handleSubmitPR}
                   disabled={isLocking}
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm px-6 py-2.5 rounded-lg transition-colors disabled:opacity-50"
+                  className="w-full flex justify-center rounded-md bg-white text-black py-2 px-4 text-sm font-medium hover:bg-zinc-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-black transition-colors disabled:opacity-70 shadow-sm"
                 >
                   {isLocking ? "Submitting..." : "Submit PR for Review"}
                 </button>
