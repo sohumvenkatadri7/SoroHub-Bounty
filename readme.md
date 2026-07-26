@@ -1,66 +1,61 @@
 <div align="center">
 
+<img src="https://img.shields.io/badge/Stellar-141414?style=for-the-badge&logo=stellar&logoColor=white" alt="Stellar" />
+<img src="https://img.shields.io/badge/Soroban-25-blue?style=for-the-badge&logo=stellar&logoColor=white" alt="Soroban" />
+<img src="https://img.shields.io/badge/Next.js_15-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" />
+<img src="https://img.shields.io/badge/Tailwind_CSS-06b6d4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind" />
+<img src="https://img.shields.io/badge/Rust-E43717?style=for-the-badge&logo=rust&logoColor=white" alt="Rust" />
+
 # ⬡ SOROHUB BOUNTY
 
-### Decentralized Developer Reputation & Escrow Protocol on Stellar
+**Decentralized Developer Reputation & Escrow Protocol on Stellar**
 
-**Bridging open-source collaboration with trustless escrow and verified on-chain reputation through Soulbound Tokens.**
+*Bridging open-source collaboration with trustless escrow and verified on-chain reputation through Soulbound Tokens (SBTs).*
 
-![Soroban](https://img.shields.io/badge/Soroban-25-blue?style=flat-square&logo=stellar)
-![Rust](https://img.shields.io/badge/Rust-2021-orange?style=flat-square&logo=rust)
-![Next.js](https://img.shields.io/badge/Next.js_15-React_19-black?style=flat-square&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript_5-blue?style=flat-square&logo=typescript)
-![Tailwind](https://img.shields.io/badge/Tailwind_CSS_4-06b6d4?style=flat-square&logo=tailwindcss)
-![Stellar](https://img.shields.io/badge/Stellar_SDK_16-purple?style=flat-square&logo=stellar)
-![Firebase](https://img.shields.io/badge/Firebase_Realtime-FFCA28?style=flat-square&logo=firebase)
+[**Explore Bounties**](#-screenshots--preview) • [**Architecture**](#-core-engineering-architecture) • [**Developer Guide**](#-setup--local-development)
 
 ---
 
 </div>
 
-## Table of Contents
-
+## 📑 Table of Contents
 - [🏆 Level 4 — Submission Requirements](#-level-4--submission-requirements)
-- [Architecture Overview](#-architecture-overview)
-- [Screenshots & Preview](#-screenshots--preview)
-- [Core Engineering Architecture](#-core-engineering-architecture)
-- [Exclusive Production Features](#-exclusive-production-features)
-- [Contract Addresses (Testnet)](#-contract-addresses-testnet)
-- [Smart Contract API Reference](#-smart-contract-api-reference)
-- [Frontend Architecture](#-frontend-architecture)
-- [Setup & Local Development](#-setup--local-development)
-- [User Guide](#-user-guide)
-- [Project Structure](#-project-structure)
-- [License](#-license)
-- ## Live Deployment Link: [Insert Live Link Here]
-- ## Demo Video Link: [Insert Video Link Here]
-    
+- [🏗️ Architecture Overview](#-architecture-overview)
+- [✨ Exclusive Production Features](#-exclusive-production-features)
+- [📸 Platform Preview](#-platform-preview)
+- [⚙️ Core Engineering Architecture](#️-core-engineering-architecture)
+- [🛡️ Error Handling & Loading States](#️-error-handling--loading-states)
+- [📖 User Guide](#-user-guide)
+- [💻 Setup & Local Development](#-setup--local-development)
+- [🔮 Future Integrations](#-future-integrations)
+- [📝 License](#-license)
+
 ---
 
 ## 🏆 Level 4 — Submission Requirements
 
 <div align="center">
-
-**All core and advanced requirements successfully implemented and verified ✅**
-
+  <b>All core and advanced requirements successfully implemented and verified ✅</b>
 </div>
 
 <br>
 
 | Requirement | Status | Implementation Details |
-|:---|:---:|:---|
+| :--- | :---: | :--- |
 | **🚀 Production MVP** | ✅ | Fully functional production-ready MVP. Stable dual-contract architecture interacting with a heavily optimized Next.js frontend. |
 | **📱 Mobile Responsive UI** | ✅ | Fluid Tailwind layouts, touch-friendly UI, bottom-sheet adaptations, and responsive grids for seamless mobile UX. |
 | **🛡️ Loading & Error Handling** | ✅ | Transaction simulation checks, atomic error handling (`UnreachableCodeReached`, `Auth` failures), skeleton loaders, and toaster notifications. |
 | **👥 User Onboarding (10+)** | ✅ | Real users onboarded and verified. Escrow and Badge contracts interacted with directly by verified on-chain addresses. |
 | **📡 Contract Deployment** | ✅ | Smart contracts successfully compiled and deployed on Stellar Testnet, interlinked via cross-contract authorization. |
-| **📝 15+ Meaningful Commits** | ✅ | Comprehensive Git history reflecting UI scaffolding, contract upgrades (Badge Option B), Firebase integration, and error resolution. |
+| **📝 15+ Meaningful Commits** | ✅ | Comprehensive Git history reflecting UI scaffolding, contract upgrades, Firebase integration, and advanced error resolution. |
 
 ---
 
-## Architecture Overview
+## 🏗️ Architecture Overview
 
-SoroHub is a **dual-contract Soroban protocol** paired with a **Next.js 15** frontend, enabling trustless developer bounties on the Stellar network. The system separates concerns into two on-chain contracts — an **Escrow Contract** for fund management and assignment logic, and a **Badge Contract** for Soulbound Token (SBT) reputation management.
+SoroHub is a **dual-contract Soroban protocol** paired with a **Next.js 15** frontend, enabling trustless developer bounties on the Stellar network. The system separates concerns into two on-chain contracts:
+1. An **Escrow Contract** for fund management and assignment logic.
+2. A **Badge Contract** for Soulbound Token (SBT) reputation management.
 
 ```mermaid
 graph TB
@@ -107,133 +102,85 @@ graph TB
 
 ---
 
-## Screenshots & Preview
+## ✨ Exclusive Production Features
+
+### 🎨 Premium Vercel/Linear-Style Aesthetics
+SoroHub transcends typical "vibe-coded" crypto aesthetics for a highly professional, high-contrast, strictly structured design language. With clean typography, subtle monochromatic borders, precise spacing, and refined color accents for status tags, the platform feels like a mature enterprise tool designed for elite developers.
+
+### 🔐 Advanced Wallet Mismatch Prevention
+Crypto UI often suffers when a user's dApp connection state falls out of sync with their extension wallet (e.g., Freighter). SoroHub implements an explicit pre-flight check that queries the active Freighter API public key against the session identity. If a mismatch is detected, the UI intercepts the execution flow and displays a helpful error *before* an invalid signature causes a confusing on-chain failure.
+
+### 🔗 Intelligent Link Parsing
+Whether a user enters `github.com/project` or `https://github.com/project`, the frontend utilizes intelligent URL normalization to ensure all outlinks route securely and correctly, eliminating broken reference chains in bounty submissions.
+
+### ⚛️ Atomic Option-B Badge Lifecycle
+Unlike simple NFT mints, SoroHub implements a highly sophisticated **dual-badge lifecycle**:
+1. **Assignment:** Developer receives a WIP (Work In Progress) badge.
+2. **Settlement:** WIP badge is atomically burned, funds are released, and a Permanent Completion Badge is minted in a single transaction.
+
+### 🪪 Web3-Native "Developer Passport" Onboarding
+A completely overhauled, premium glassmorphism onboarding experience. Instead of generic forms, new users mint their identity via a "Developer Passport" interface that visually syncs their live Stellar wallet, GitHub profile, and email into an overarching Web3 identity.
+
+### 🗄️ Dedicated Funder Management Hub
+Funders aren't left searching through public feeds. A dedicated `/manage` portal gives bounty creators a comprehensive, top-down view of every bounty they've funded. They can track applicant counts, review PRs, release escrows, or cancel stale bounties—all from a single, beautifully organized control center.
+
+### 🛡️ Cross-Contract Authorization
+The Badge contract leverages Soroban's native `require_auth()`. The Escrow contract acts as the caller, and Soroban automatically validates the authorization footprint. This guarantees that bad actors cannot artificially inflate their reputation by calling `mint_badge` directly.
+
+### ⚡ Firebase Real-Time Hybrid State
+To ensure the UI is lightning fast (avoiding RPC rate limits for browsing), bounty metadata (titles, descriptions, applicants, profiles) is stored off-chain in Firebase Firestore, while the absolute financial truth (assignments, fund locks, badge ownership) is stored strictly on-chain.
+
+---
+
+## 📸 Platform Preview
 
 *(Please replace placeholder image links with actual screenshots)*
 
 ### Dashboard — Live Open Bounties
 <p align="center">
- <img width="1900" height="900" alt="Dashboard" src="https://via.placeholder.com/1900x900.png?text=Dashboard+View" />
+ <img width="100%" alt="Dashboard" src="https://via.placeholder.com/1900x900.png?text=Dashboard+View" />
 </p>
-*Real-time feed of available open-source bounties, filtered by difficulty level and status.*
+<p align="center"><em>Real-time feed of available open-source bounties, filtered by difficulty level and status.</em></p>
 
 ### Bounty Room — Manage Applicants
 <p align="center">
- <img width="1900" height="900" alt="Bounty Details" src="https://via.placeholder.com/1900x900.png?text=Bounty+Management" />
+ <img width="100%" alt="Bounty Details" src="https://via.placeholder.com/1900x900.png?text=Bounty+Management" />
 </p>
-*Funder view displaying real-time applicants. Click 'Assign' to lock the escrow and mint the developer a Work-In-Progress (WIP) Badge.*
+<p align="center"><em>Funder view displaying real-time applicants. Click 'Assign' to lock the escrow and mint the developer a Work-In-Progress (WIP) Badge.</em></p>
 
 ### Create Bounty — Fund Escrow
 <p align="center">
- <img width="1900" height="900" alt="Create Bounty" src="https://via.placeholder.com/1900x900.png?text=Create+Bounty+Form" />
+ <img width="100%" alt="Create Bounty" src="https://via.placeholder.com/1900x900.png?text=Create+Bounty+Form" />
 </p>
-*Bounty creators fund the smart contract escrow in a single atomic transaction (supporting native XLM via Stroops).*
+<p align="center"><em>Bounty creators fund the smart contract escrow in a single atomic transaction (supporting native XLM via Stroops).</em></p>
 
 ---
 
-## Core Engineering Architecture
+## ⚙️ Core Engineering Architecture
 
 ### 1. Escrow Protocol Contract — `escrow-contract` (Soroban/Rust)
-
 The Escrow contract serves as the financial and state-management hub of the platform. It securely locks funds in the contract's vault and dictates the flow of the bounty lifecycle.
 
 | Method | Description |
 |---|---|
-| `init(admin, badge_contract)` | Initializes the contract and stores the address of the Badge Contract for future cross-contract invocations. |
+| `init(admin, badge_contract)` | Initializes the contract and stores the address of the Badge Contract for cross-contract invocations. |
 | `fund_bounty(...)` | Transfers tokens from the Funder to the Contract Vault and creates an immutable `BountyRecord`. |
-| `cancel_bounty(...)` | Secures the Funder against stale bounties by allowing them to withdraw their locked tokens (refund) as long as no developer has been assigned. |
-| `assign_bounty(...)` | Funder assigns a developer. Logs the assignment on-chain and makes a cross-contract call to mint a WIP badge to the developer. |
-| `claim_bounty(...)` | Funder approves the PR. Transfers locked funds to the developer, burns the WIP badge, and mints the Final Completion Badge. |
+| `cancel_bounty(...)` | Secures the Funder by allowing them to withdraw their locked tokens (refund) if no developer is assigned. |
+| `assign_bounty(...)` | Funder assigns a developer. Logs the assignment and makes a cross-contract call to mint a WIP badge. |
+| `claim_bounty(...)` | Funder approves the PR. Transfers locked funds to the developer, burns WIP badge, and mints Final Badge. |
 
 ### 2. Reputation Badge Contract — `badge-contract` (Soroban/Rust)
-
-The Badge contract manages the Soulbound Token (SBT) reputation system. It relies heavily on `require_auth()` from the Escrow contract, meaning **no badges can be minted or burned manually by users** — they are strictly enforced by the outcome of a bounty.
+The Badge contract manages the Soulbound Token (SBT) reputation system. It relies heavily on `require_auth()` from the Escrow contract, meaning **no badges can be minted or burned manually by users**.
 
 | Method | Description |
 |---|---|
-| `mint_wip_badge(...)` | Gives a developer a temporary "In Progress" badge so the community knows they are actively working on a bounty. |
+| `mint_wip_badge(...)` | Gives a developer a temporary "In Progress" badge during active bounty work. |
 | `burn_wip_badge(...)` | Destroys the WIP badge once the bounty is complete or cancelled. |
-| `mint_badge(...)` | Mints a permanent, immutable "Completed" badge to the developer's wallet to build their verifiable on-chain resume. |
-
-### Contract Interaction Sequence
-
-```mermaid
-sequenceDiagram
-    participant UI as Frontend
-    participant E as Escrow Contract
-    participant B as Badge Contract
-    
-    Note over UI,E: 1. Funder assigns Developer
-    UI->>E: invoke `assign_bounty(developer, bounty_id)`
-    E->>B: cross-contract `mint_wip_badge(developer)`
-    
-    Note over UI,E: 2. Funder approves Work
-    UI->>E: invoke `claim_bounty(developer, bounty_id)`
-    E->>E: Transfer Vault Funds to Developer
-    E->>B: cross-contract `burn_wip_badge(developer)`
-    E->>B: cross-contract `mint_badge(developer)`
-```
+| `mint_badge(...)` | Mints a permanent, immutable "Completed" badge to the developer's wallet (on-chain resume). |
 
 ---
 
-## Exclusive Production Features
-
-### Atomic Option-B Badge Lifecycle
-Unlike simple NFT mints, SoroHub implements a highly sophisticated **dual-badge lifecycle**:
-1. **Assignment:** Developer receives a WIP (Work In Progress) badge.
-2. **Settlement:** WIP badge is atomically burned, funds are released, and a Permanent Completion Badge is minted in a single transaction.
-
-### Web3-Native "Developer Passport" Onboarding
-A completely overhauled, premium glassmorphism onboarding experience. Instead of generic forms, new users mint their identity via a "Developer Passport" interface that visually syncs their live Stellar wallet, GitHub profile, and email into an overarching Web3 identity, setting a high bar for platform aesthetics.
-
-### Dedicated Funder Management Hub
-Funders aren't left searching through public feeds. A dedicated `/manage` portal gives bounty creators a comprehensive, top-down view of every bounty they've funded. They can track applicant counts, review PRs, release escrows, or cancel stale bounties—all from a single, beautifully organized control center.
-
-### Cross-Contract Authorization
-The Badge contract leverages Soroban's native `require_auth()`. The Escrow contract acts as the caller, and Soroban automatically validates the authorization footprint. This guarantees that bad actors cannot artificially inflate their reputation by calling `mint_badge` directly.
-
-### Developer Identity & Profiles
-A comprehensive `/profile` system allowing developers to set a Display Name, link their GitHub and Portfolio URLs (which automatically map to their bounty applications), and view their real-time on-chain balances (XLM/USDC) alongside their completed issues and Soulbound Badge count.
-
-### Real-Time Global Notification System
-SoroHub features a persistent `NotificationProvider` that listens to Firebase in real-time. When a Funder assigns a developer or approves their PR to release funds, the developer receives an instant, animated "Toast" notification in the UI with a direct link to the bounty.
-
-### End-to-End Escrow Lifecycle
-A fully built-out frontend flow managing complex state transitions (Open -> Assigned -> In Review -> Completed) featuring dynamic colored UI badges, PR submission inputs for developers, and one-click "Approve & Release" actions for Funders.
-
-### Bounty Timers & Deadlines
-Every bounty has a configurable deadline set by the funder (e.g., 7 days). When a developer is assigned, a live countdown timer strictly tracks their submission window. If the developer fails to submit a PR within the deadline, the Funder has the right to re-open the bounty.
-
-### Secure Escrow Cancellations
-SoroHub respects Funder liquidity. If a bounty is created but fails to attract any applicants, the Funder can execute a completely on-chain `cancel_bounty` transaction to instantly withdraw and refund their locked tokens back to their wallet. (Restricted by the contract so it cannot be executed *after* a developer has been assigned).
-
-### Premium Vercel/Linear-Style Aesthetics
-SoroHub ditches the typical "vibe-coded" crypto look for a highly professional, high-contrast, strictly structured design language. With clean typography, subtle monochromatic borders, precise spacing, and refined color accents for status tags, the platform feels like a mature enterprise tool designed for elite developers.
-
-### Intelligent Link Parsing
-Whether a user enters `github.com/project` or `https://github.com/project`, the frontend utilizes intelligent URL normalization to ensure all outlinks route securely and correctly, eliminating broken reference chains in bounty submissions.
-
-### Advanced Wallet Mismatch Prevention
-Crypto UI often suffers when a user's dApp connection state falls out of sync with their extension wallet (e.g., Freighter). SoroHub implements an explicit pre-flight check that queries the active Freighter API public key against the session identity. If a mismatch is detected, the UI intercepts the execution flow and displays a helpful error *before* an invalid signature causes a confusing on-chain failure.
-
-### Firebase Real-Time Hybrid State
-To ensure the UI is lightning fast (avoiding RPC rate limits for browsing), bounty metadata (titles, descriptions, applicants, profiles) is stored off-chain in Firebase Firestore, while the absolute financial truth (assignments, fund locks, badge ownership) is stored strictly on-chain.
-
-### Proper Stroop Conversion
-The frontend cleanly interfaces with Soroban's 7-decimal `i128` requirement, seamlessly converting user-friendly numbers (e.g., 10 XLM) into exact on-chain stroops (100,000,000) during transaction building.
-
----
-
-## 🔮 Future Integrations Roadmap
-
-While SoroHub is fully functional for production right now, the architecture is designed to scale into an autonomous ecosystem:
-1. **GitHub App API Integration**: Automating the `claim_bounty` process by listening to merged PR webhooks directly from GitHub.
-2. **AI Code Review Oracles**: Deploying AI subagents that automatically review PRs for security vulnerabilities before allowing the Funder to release escrow.
-3. **Multi-Asset Governance**: Allowing developers to stake their earned Soulbound Badges for voting power over platform protocol upgrades.
-
----
-
-## Contract Addresses (Testnet)
+## 🌐 Contract Addresses (Testnet)
 
 | Contract | Address |
 |---|---|
@@ -244,14 +191,14 @@ While SoroHub is fully functional for production right now, the architecture is 
 
 ---
 
-## ⚠️ Error Handling & Loading States
+## 🛡️ Error Handling & Loading States
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    ERROR HANDLING MATRIX                        │
 ├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│   Error Type              Frontend Response                      │
+│                                                                 │
+│   Error Type              Frontend Response                     │
 │   ─────────────────────  ──────────────────────────────         │
 │   Wallet Not Connected   → Modal prompt + connection flow       │
 │   Wallet Mismatch        → Prevents signing if Freighter active │
@@ -259,46 +206,23 @@ While SoroHub is fully functional for production right now, the architecture is 
 │   WasmVm InvalidAction   → Detailed simulation failure toast    │
 │   Auth Failure           → Signature rejection handler          │
 │   Contract Panics        → UI rollback to prevent sync issues   │
-│                                                                  │
+│                                                                 │
 ├─────────────────────────────────────────────────────────────────┤
 │                    LOADING STATES                               │
 ├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│   Phase                   Visual Indicator                       │
+│                                                                 │
+│   Phase                   Visual Indicator                      │
 │   ─────────────────────  ──────────────────────────────         │
 │   Transaction Assembly   → "Assembling footprint..."            │
 │   Transaction Signing    → Disables UI buttons                  │
 │   On-Chain Confirmation  → Spinner + 5-second ledger wait       │
-│                                                                  │
+│                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Frontend Architecture
-
-### Technology Stack
-
-| Layer | Technology | Purpose |
-|---|---|---|
-| Framework | Next.js 15 (App Router) | Server/client component architecture |
-| Language | TypeScript 5 | Type-safe contract interactions |
-| Styling | Tailwind CSS 4 | Glassmorphism & dark UI system |
-| Wallet | Stellar Wallets Kit | Multi-wallet connection (Freighter, xBull) |
-| Blockchain | Stellar SDK 16 | Soroban RPC, transaction building |
-| Database | Firebase Firestore | Real-time indexing of bounty metadata |
-
----
-
 ## 📖 User Guide
-
-<div align="center">
-
-**Complete walkthrough for using SoroHub — from funding to reputation building**
-
-</div>
-
-<br>
 
 ### 🔄 The Bounty Lifecycle
 
@@ -329,7 +253,7 @@ stateDiagram-v2
 
 ---
 
-## Setup & Local Development
+## 💻 Setup & Local Development
 
 ### Prerequisites
 - Node.js v18+ and npm
@@ -370,7 +294,6 @@ Update `frontend/utils/soroban.ts` with your new contract IDs, and execute the i
 ## 🔮 Future Integrations
 
 SoroHub is designed to be highly extensible. Future developments and community integrations could include:
-
 - **Automated GitHub PR Verification:** Implementing GitHub webhooks or GitHub Actions to automatically trigger the `claim_bounty` escrow release the moment a Pull Request is merged into the `main` branch.
 - **Advanced Reputation Oracles:** Using Chainlink or similar Oracles to fetch off-chain GitHub contribution metadata (lines of code, code quality, PR size) to mint dynamic SVGs for Soulbound Badges.
 - **Decentralized Dispute Resolution:** Integrating an escalation module where a DAO or independent arbiters (like Kleros) can vote on disputed PRs to determine escrow payouts.
@@ -379,12 +302,10 @@ SoroHub is designed to be highly extensible. Future developments and community i
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 SoroHub-Bounty/
-├── .gitignore
-├── README.md
 ├── contracts/                            # Soroban smart contracts
 │   ├── badge/                            # Soulbound Token logic
 │   │   ├── contracts/badge-contract/src/
@@ -399,12 +320,10 @@ SoroHub-Bounty/
     ├── package.json                      
     ├── tailwind.config.ts                
     ├── app/                              # App Router pages
-    │   ├── layout.tsx                    
     │   ├── page.tsx                      # Landing
-    │   ├── globals.css                   
     │   ├── dashboard/page.tsx            # Live feed & filtering
     │   ├── create/page.tsx               # Fund escrow form
-    │   ├── bounty/[id]/page.tsx          # Assignment & Claiming UI
+    │   └── bounty/[id]/page.tsx          # Assignment & Claiming UI
     │
     ├── components/                       
     │   └── WalletProvider.tsx            # Stellar Wallets Kit wrapper
@@ -416,14 +335,10 @@ SoroHub-Bounty/
 
 ---
 
-## License
-
+## 📝 License
 MIT © SoroHub Protocol
 
----
-
+<br>
 <div align="center">
-
-**Built on [Stellar](https://stellar.org) • Powered by [Soroban](https://soroban.stellar.org)**
-
+  <b>Built on <a href="https://stellar.org">Stellar</a> • Powered by <a href="https://soroban.stellar.org">Soroban</a></b>
 </div>
