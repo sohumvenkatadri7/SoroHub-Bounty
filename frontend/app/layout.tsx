@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { WalletProvider } from "@/components/WalletProvider";
 
 import { NotificationProvider } from "@/components/NotificationProvider";
-
+import { Analytics } from "@vercel/analytics/react";
 export const metadata: Metadata = {
   title: "SoroHub - Decentralized Bounties",
   description: "Automated Web3 bounties funded in XLM and USDC via Soroban smart contracts.",
@@ -32,6 +32,7 @@ export default function RootLayout({
           <WalletProvider>
             <NotificationProvider>
               {children}
+              <Analytics />
             </NotificationProvider>
           </WalletProvider>
         </div>

@@ -207,6 +207,7 @@ export default function DashboardPage() {
             <span onClick={() => router.push("/")} className="hover:text-white cursor-pointer transition-colors">Overview</span>
             <span onClick={() => router.push("/dashboard")} className="text-white cursor-pointer transition-colors">Bounties</span>
             <span onClick={() => router.push("/profile")} className="hover:text-white cursor-pointer transition-colors">Profile</span>
+            <span onClick={() => router.push("/analytics")} className="hover:text-white cursor-pointer transition-colors">Analytics</span>
           </div>
         </div>
 

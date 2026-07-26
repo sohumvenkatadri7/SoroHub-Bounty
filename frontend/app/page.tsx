@@ -70,6 +70,7 @@ export default function LandingPage() {
             <span onClick={() => router.push("/")} className="hover:text-white cursor-pointer transition-colors">Overview</span>
             <span onClick={() => router.push("/dashboard")} className="hover:text-white cursor-pointer transition-colors">Bounties</span>
             <span onClick={() => router.push("/#guide")} className="hover:text-white cursor-pointer transition-colors">Guide</span>
+            <span onClick={() => router.push("/analytics")} className="hover:text-white cursor-pointer transition-colors">Analytics</span>
           </div>
         </div>
 
