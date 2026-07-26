@@ -120,7 +120,7 @@ graph TB
 ## ✨ Exclusive Production Features
 
 ### 🎨 Premium Vercel/Linear-Style Aesthetics
-SoroHub transcends typical "vibe-coded" crypto aesthetics for a highly professional, high-contrast, strictly structured design language. With clean typography, subtle monochromatic borders, precise spacing, and refined color accents for status tags, the platform feels like a mature enterprise tool designed for elite developers.
+SoroHub features a highly professional, high-contrast, strictly structured design language. With clean typography, subtle monochromatic borders, precise spacing, and refined color accents for status tags, the platform feels like a mature enterprise tool designed for elite developers.
 
 ### 🔐 Advanced Wallet Mismatch Prevention
 Crypto UI often suffers when a user's dApp connection state falls out of sync with their extension wallet (e.g., Freighter). SoroHub implements an explicit pre-flight check that queries the active Freighter API public key against the session identity. If a mismatch is detected, the UI intercepts the execution flow and displays a helpful error *before* an invalid signature causes a confusing on-chain failure.
