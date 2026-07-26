@@ -1,16 +1,16 @@
 <div align="center">
 
+# SOROHUB BOUNTY
+
+**Decentralized Developer Reputation & Escrow Protocol on Stellar**
+
+*Bridging open-source collaboration with trustless escrow and verified on-chain reputation through Soulbound Tokens (SBTs).*
+
 <img src="https://img.shields.io/badge/Stellar-141414?style=for-the-badge&logo=stellar&logoColor=white" alt="Stellar" />
 <img src="https://img.shields.io/badge/Soroban-25-blue?style=for-the-badge&logo=stellar&logoColor=white" alt="Soroban" />
 <img src="https://img.shields.io/badge/Next.js_15-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" />
 <img src="https://img.shields.io/badge/Tailwind_CSS-06b6d4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind" />
 <img src="https://img.shields.io/badge/Rust-E43717?style=for-the-badge&logo=rust&logoColor=white" alt="Rust" />
-
-# ⬡ SOROHUB BOUNTY
-
-**Decentralized Developer Reputation & Escrow Protocol on Stellar**
-
-*Bridging open-source collaboration with trustless escrow and verified on-chain reputation through Soulbound Tokens (SBTs).*
 
 [**Explore Bounties**](#-screenshots--preview) • [**Architecture**](#-core-engineering-architecture) • [**Developer Guide**](#-setup--local-development)
 
@@ -29,7 +29,8 @@
 - [💻 Setup & Local Development](#-setup--local-development)
 - [🔮 Future Integrations](#-future-integrations)
 - [📝 License](#-license)
-
+- Live Deployment Link: https://soro-hub-bounty-black.vercel.app
+- Video Demonstration Link: https://drive.google.com/drive/folders/1nUqBfJZso3pkMxWwS-N0j9Gdc61JAh_j?usp=sharing
 ---
 
 ## 🏆 Level 4 — Submission Requirements
