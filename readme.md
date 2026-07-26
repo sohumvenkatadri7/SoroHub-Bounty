@@ -31,6 +31,20 @@
 - [📝 License](#-license)
 - Live Deployment Link: https://soro-hub-bounty-black.vercel.app
 - Video Demonstration Link: https://drive.google.com/drive/folders/1nUqBfJZso3pkMxWwS-N0j9Gdc61JAh_j?usp=sharing
+- Escrow Contract Creation transaction link: https://stellar.expert/explorer/testnet/tx/6a11c4f9e48137bc38b5e58473d7e27f1cff698b5088f1df7dfd82146a8e2b7c
+- Badge Contract Creation transaction link: https://stellar.expert/explorer/testnet/tx/5a29e8b8b25631e7870adaf010aa2eed84e25fc2d992465f8694438537fb13c4
+- Proof of 10+ Users onboarding with wallet addresses: https://docs.google.com/spreadsheets/d/1gNQk1T5hFVRzAP1Kh-U1pwSzUWi_uEto_F4doh8de_8/edit?usp=sharing
+---
+
+## 🌐 Contract Addresses (Testnet)
+
+| Contract | Address |
+|---|---|
+| **Escrow Protocol** | `CCMPOMD4SZIITQL7SFRT7TT65M656TJERW7TFWOWQ4GKGINP2DW35GYZ` |
+| **Badge Protocol** | `CDOT3TVM5OBMV56FLZZFXNWZUVLWX65BRHXCI7VWB2MTDRTXN42T35U5` |
+| **Network** | Stellar Testnet |
+| **RPC** | `https://soroban-testnet.stellar.org` |
+
 ---
 
 ## 🏆 Level 4 — Submission Requirements
@@ -139,21 +153,48 @@ To ensure the UI is lightning fast (avoiding RPC rate limits for browsing), boun
 
 ### Dashboard — Live Open Bounties
 <p align="center">
- <img width="100%" alt="Dashboard" src="https://via.placeholder.com/1900x900.png?text=Dashboard+View" />
+  <img width="1886" height="933" alt="Screenshot 2026-07-25 180338" src="https://github.com/user-attachments/assets/64d5287e-7c10-497a-82fa-c4684e6bbb63" />
+
+  <br> </br>
+ <img width="1887" height="932" alt="Screenshot 2026-07-26 215558" src="https://github.com/user-attachments/assets/fb9d45de-3d1f-4fa8-ac41-8a6a5297c639" />
+
 </p>
 <p align="center"><em>Real-time feed of available open-source bounties, filtered by difficulty level and status.</em></p>
 
 ### Bounty Room — Manage Applicants
 <p align="center">
- <img width="100%" alt="Bounty Details" src="https://via.placeholder.com/1900x900.png?text=Bounty+Management" />
+ <img width="1878" height="918" alt="Screenshot 2026-07-26 215624" src="https://github.com/user-attachments/assets/621774f9-ebd0-45d9-a8c1-c11898eca2d5" />
+ <br> </br>
+ <img width="1881" height="932" alt="image" src="https://github.com/user-attachments/assets/4077472d-34b7-46d3-aa4a-0c9e73e6bb52" />
+
+
 </p>
 <p align="center"><em>Funder view displaying real-time applicants. Click 'Assign' to lock the escrow and mint the developer a Work-In-Progress (WIP) Badge.</em></p>
 
 ### Create Bounty — Fund Escrow
 <p align="center">
- <img width="100%" alt="Create Bounty" src="https://via.placeholder.com/1900x900.png?text=Create+Bounty+Form" />
+ <img width="1871" height="910" alt="image" src="https://github.com/user-attachments/assets/454509aa-ece1-45f0-a49f-9ec478fe7f02" />
+
+ <br> <br>
+ <img width="1886" height="920" alt="image" src="https://github.com/user-attachments/assets/f606a003-02c6-4d1e-a88d-5471d0f5418d" />
+
+
 </p>
 <p align="center"><em>Bounty creators fund the smart contract escrow in a single atomic transaction (supporting native XLM via Stroops).</em></p>
+
+### Transactions on Escrow Contract — Stellar Explorer Screenshot
+<p align="center">
+ <img width="1898" height="937" alt="image" src="https://github.com/user-attachments/assets/8509a3a8-34c5-48c4-b922-90a4df1afabf" />
+
+</p>
+<p align="center"><em>Shows the recent transactions made on the Escrow Contract</em></p>
+
+### Transactions on Badge Contract — Stellar Explorer Screenshot
+<p align="center">
+ <img width="1908" height="931" alt="image" src="https://github.com/user-attachments/assets/03a56fe7-321a-49fb-8fa6-21c037bd7b07" />
+
+</p>
+<p align="center"><em>Shows the recent transactions made on the Badge Contract</em></p>
 
 ---
 
@@ -178,17 +219,6 @@ The Badge contract manages the Soulbound Token (SBT) reputation system. It relie
 | `mint_wip_badge(...)` | Gives a developer a temporary "In Progress" badge during active bounty work. |
 | `burn_wip_badge(...)` | Destroys the WIP badge once the bounty is complete or cancelled. |
 | `mint_badge(...)` | Mints a permanent, immutable "Completed" badge to the developer's wallet (on-chain resume). |
-
----
-
-## 🌐 Contract Addresses (Testnet)
-
-| Contract | Address |
-|---|---|
-| **Escrow Protocol** | `CCMPOMD4SZIITQL7SFRT7TT65M656TJERW7TFWOWQ4GKGINP2DW35GYZ` |
-| **Badge Protocol** | `CDOT3TVM5OBMV56FLZZFXNWZUVLWX65BRHXCI7VWB2MTDRTXN42T35U5` |
-| **Network** | Stellar Testnet |
-| **RPC** | `https://soroban-testnet.stellar.org` |
 
 ---
 
