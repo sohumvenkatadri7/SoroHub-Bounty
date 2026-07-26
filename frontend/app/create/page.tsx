@@ -71,7 +71,7 @@ export default function CreateBountyPage() {
 
       setTxStatus("SUCCESS! BOUNTY CREATED & FUNDED.");
       if ((result as any).hash) {
-        setTxHash(result.hash);
+        setTxHash((result as any).hash);
       } else {
         setTimeout(() => {
           router.push("/dashboard");

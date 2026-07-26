@@ -9,7 +9,7 @@ import { doc, updateDoc } from "firebase/firestore";
 
 export default function ClaimBountyPage() {
   const router = useRouter();
-  const { address, kit, connect } = useWallet();
+  const { address, kit, connect, disconnect } = useWallet();
   
   const [formData, setFormData] = useState({
     bountyId: "",
@@ -50,7 +50,7 @@ export default function ClaimBountyPage() {
 
       setTxStatus("SUCCESS! FUNDS RELEASED & NFT MINTED.");
       if ((result as any).hash) {
-        setTxHash(result.hash);
+        setTxHash((result as any).hash);
       } else {
         setTimeout(() => {
           router.push("/dashboard");

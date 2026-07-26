@@ -8,12 +8,27 @@ import {
   TransactionBuilder,
   BASE_FEE,
 } from "@stellar/stellar-sdk";
+import { isConnected, getAddress } from "@stellar/freighter-api";
 
 export const ESCROW_CONTRACT_ID = "CCMPOMD4SZIITQL7SFRT7TT65M656TJERW7TFWOWQ4GKGINP2DW35GYZ";
 export const BADGE_CONTRACT_ID = "CDOT3TVM5OBMV56FLZZFXNWZUVLWX65BRHXCI7VWB2MTDRTXN42T35U5"; // Replace with actual deployment
 export const SOROBAN_RPC_URL = "https://soroban-testnet.stellar.org";
 
 export const server = new rpc.Server(SOROBAN_RPC_URL);
+
+
+async function checkWalletMismatch(expectedAddress: string) {
+  try {
+    if (await isConnected()) {
+      const activePublicKey = await getAddress();
+      if (activePublicKey && activePublicKey.address !== expectedAddress) {
+        throw new Error(`Wallet mismatch! You connected as ${expectedAddress.slice(0,4)}...${expectedAddress.slice(-4)} but Freighter is set to ${activePublicKey.address.slice(0,4)}...${activePublicKey.address.slice(-4)}. Please switch your Freighter account.`);
+      }
+    }
+  } catch (e: any) {
+    if (e && e.message && e.message.includes("Wallet mismatch")) throw e;
+  }
+}
 
 export async function fundBountyTransaction(
   kit: any,
@@ -49,6 +64,7 @@ export async function fundBountyTransaction(
 
   try {
     let signedXdr = "";
+    await checkWalletMismatch(funderAddress);
     if (typeof kit.signTransaction === "function") {
       const res = await kit.signTransaction(txXdr, {
         networkPassphrase: Networks.TESTNET,
@@ -117,6 +133,7 @@ export async function claimBountyTransaction(
 
   try {
     let signedXdr = "";
+    await checkWalletMismatch(adminAddress);
     if (typeof kit.signTransaction === "function") {
       const res = await kit.signTransaction(txXdr, {
         networkPassphrase: Networks.TESTNET,
@@ -189,6 +206,7 @@ export async function assignBountyTransaction(
 
   try {
     let signedXdr;
+    await checkWalletMismatch(funderAddress);
     if (typeof kit.signTransaction === "function") {
       const res = await kit.signTransaction(txXdr, {
         networkPassphrase: Networks.TESTNET,
@@ -320,6 +338,7 @@ export async function cancelBountyTransaction(
 
   try {
     let signedXdr;
+    await checkWalletMismatch(funderAddress);
     if (typeof kit.signTransaction === "function") {
       const res = await kit.signTransaction(txXdr, {
         networkPassphrase: Networks.TESTNET,
