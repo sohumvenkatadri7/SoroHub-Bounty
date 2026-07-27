@@ -152,8 +152,6 @@ A dedicated `/analytics` hub provides a beautifully visualized, real-time breakd
 
 ## 📸 Platform Preview
 
-*(Please replace placeholder image links with actual screenshots)*
-
 ### Dashboard — Live Open Bounties
 <p align="center">
   <img width="1886" height="933" alt="Screenshot 2026-07-25 180338" src="https://github.com/user-attachments/assets/64d5287e-7c10-497a-82fa-c4684e6bbb63" />
@@ -312,7 +310,7 @@ stateDiagram-v2
 
 ```bash
 # Clone the repository
-git clone <YOUR_REPO_URL>
+git clone https://github.com/sohumvenkatadri7/SoroHub-Bounty.git
 cd SoroHub-Bounty
 
 # Install dependencies
@@ -328,11 +326,11 @@ npm run dev
 ```bash
 cd contracts/escrow
 make build
-soroban contract deploy --wasm target/wasm32-unknown-unknown/release/escrow_contract.wasm --network testnet
+stellar contract deploy --wasm target/wasm32-unknown-unknown/release/escrow_contract.wasm --network testnet
 
 cd ../badge
 make build
-soroban contract deploy --wasm target/wasm32-unknown-unknown/release/badge_contract.wasm --network testnet
+stellar contract deploy --wasm target/wasm32-unknown-unknown/release/badge_contract.wasm --network testnet
 ```
 
 Update `frontend/utils/soroban.ts` with your new contract IDs, and execute the initialization script to cross-link them.
