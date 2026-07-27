@@ -33,17 +33,40 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
     // 3. Restore session if exists
     const savedAddress = localStorage.getItem("sorohub_wallet_address");
     if (savedAddress) {
-      setAddress(savedAddress);
-      
-      // Background check for registration
-      import("@/utils/firebase").then(({ db }) => {
-        import("firebase/firestore").then(({ doc, getDoc }) => {
-          getDoc(doc(db, "users", savedAddress)).then((docSnap) => {
+      // Verify session is still valid with Freighter
+      import("@stellar/freighter-api").then(({ isAllowed, getPublicKey }) => {
+        isAllowed().then(async (allowed) => {
+          if (!allowed) {
+            // Wallet locked or permissions revoked
+            localStorage.removeItem("sorohub_wallet_address");
+            setAddress(null);
+            return;
+          }
+          
+          try {
+            const currentPubKey = await getPublicKey();
+            const activeAddress = currentPubKey || savedAddress;
+            setAddress(activeAddress);
+            if (currentPubKey && currentPubKey !== savedAddress) {
+              localStorage.setItem("sorohub_wallet_address", currentPubKey);
+            }
+            
+            // Background check for registration
+            const { db } = await import("@/utils/firebase");
+            const { doc, getDoc } = await import("firebase/firestore");
+            const docSnap = await getDoc(doc(db, "users", activeAddress));
             if (!docSnap.exists() && window.location.pathname !== "/onboarding") {
               window.location.href = "/onboarding";
             }
-          });
+          } catch (e) {
+            console.error("Freighter verification failed:", e);
+          }
+        }).catch(() => {
+           // Fallback if freighter is not installed but another wallet is used
+           setAddress(savedAddress);
         });
+      }).catch(() => {
+         setAddress(savedAddress);
       });
     }
   }, []);
