@@ -50,6 +50,9 @@ export default function ProfilePage() {
         const myCompleted = allBounties.filter(b => b.assignedTo === address && b.status === "completed");
         setCompletedBounties(myCompleted);
         
+        const myWIP = allBounties.filter(b => b.assignedTo === address && b.status === "assigned");
+        setWipBadgeCount(myWIP.length);
+
         const earned = myCompleted.reduce((sum, b) => sum + (parseInt(b.rewardAmount) || 0), 0);
         setTotalEarned(earned);
 
@@ -93,10 +96,6 @@ export default function ProfilePage() {
       try {
         const badges = await getDeveloperBadges(address as string);
         setBadgeCount(badges.length);
-        
-        const { getWipBadges } = await import("@/utils/soroban");
-        const wipBadges = await getWipBadges(address as string);
-        setWipBadgeCount(wipBadges.length);
       } catch (err) {}
     }
     
