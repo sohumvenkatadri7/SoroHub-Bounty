@@ -34,7 +34,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
     const savedAddress = localStorage.getItem("sorohub_wallet_address");
     if (savedAddress) {
       // Verify session is still valid with Freighter
-      import("@stellar/freighter-api").then(({ isAllowed, getPublicKey }) => {
+      import("@stellar/freighter-api").then(({ isAllowed, getAddress }) => {
         isAllowed().then(async (allowed) => {
           if (!allowed) {
             // Wallet locked or permissions revoked
@@ -44,7 +44,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }) => {
           }
           
           try {
-            const currentPubKey = await getPublicKey();
+            const res = await getAddress();
+            const currentPubKey = res.address;
             const activeAddress = currentPubKey || savedAddress;
             setAddress(activeAddress);
             if (currentPubKey && currentPubKey !== savedAddress) {
