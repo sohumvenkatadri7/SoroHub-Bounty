@@ -291,7 +291,7 @@ export default function DashboardPage() {
                 Total Earned
               </span>
               <div className="text-2xl font-semibold text-white flex items-baseline gap-1.5">
-                {bounties.filter(b => b.status === "completed").reduce((sum, b) => sum + (parseInt(b.rewardAmount) || 0), 0)} <span className="text-[13px] text-zinc-500 font-medium">XLM</span>
+                {bounties.filter(b => b.status === "completed" && b.assignedTo === address).reduce((sum, b) => sum + (parseInt(b.rewardAmount) || 0), 0)} <span className="text-[13px] text-zinc-500 font-medium">XLM</span>
               </div>
             </div>
 
