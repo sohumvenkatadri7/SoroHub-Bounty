@@ -34,6 +34,9 @@
 - Escrow Contract Creation transaction link: https://stellar.expert/explorer/testnet/tx/6a11c4f9e48137bc38b5e58473d7e27f1cff698b5088f1df7dfd82146a8e2b7c
 - Badge Contract Creation transaction link: https://stellar.expert/explorer/testnet/tx/5a29e8b8b25631e7870adaf010aa2eed84e25fc2d992465f8694438537fb13c4
 - Proof of 10+ Users onboarding with wallet addresses along with Feedback: https://docs.google.com/spreadsheets/d/1gNQk1T5hFVRzAP1Kh-U1pwSzUWi_uEto_F4doh8de_8/edit?usp=sharing
+
+- Track transactions of Escrow Contract: https://stellar.expert/explorer/testnet/contract/CCMPOMD4SZIITQL7SFRT7TT65M656TJERW7TFWOWQ4GKGINP2DW35GYZ
+- Track transactions of Badge Contract: https://stellar.expert/explorer/testnet/contract/CDOT3TVM5OBMV56FLZZFXNWZUVLWX65BRHXCI7VWB2MTDRTXN42T35U5
 ---
 
 ## 🌐 Contract Addresses (Testnet)
