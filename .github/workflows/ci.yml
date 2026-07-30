@@ -34,3 +34,37 @@ jobs:
           # If you have public env variables needed for the build, define them here.
           # E.g. NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
           NEXT_TELEMETRY_DISABLED: 1
+
+  build-contracts:
+    name: Build & Test Soroban Contracts
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ./contracts
+
+      - name: Build Escrow Contract
+        working-directory: ./contracts/escrow
+        run: cargo build --target wasm32-unknown-unknown --release
+
+      - name: Run Escrow Tests
+        working-directory: ./contracts/escrow
+        run: cargo test
+
+      - name: Build Badge Contract
+        working-directory: ./contracts/badge
+        run: cargo build --target wasm32-unknown-unknown --release
+
+      - name: Run Badge Tests
+        working-directory: ./contracts/badge
+        run: cargo test
