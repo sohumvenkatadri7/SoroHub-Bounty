@@ -31,7 +31,7 @@ jobs:
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: wasm32-unknown-unknown
+          targets: wasm32v1-none
 
       - name: Install Stellar CLI
         run: cargo install --locked stellar-cli --features opt
@@ -39,14 +39,14 @@ jobs:
       - name: Build and Optimize Escrow
         working-directory: ./contracts/escrow
         run: |
-          cargo build --target wasm32-unknown-unknown --release
-          stellar contract optimize --wasm target/wasm32-unknown-unknown/release/escrow_contract.wasm
+          cargo build --target wasm32v1-none --release
+          stellar contract optimize --wasm target/wasm32v1-none/release/escrow_contract.wasm
 
       - name: Build and Optimize Badge
         working-directory: ./contracts/badge
         run: |
-          cargo build --target wasm32-unknown-unknown --release
-          stellar contract optimize --wasm target/wasm32-unknown-unknown/release/badge_contract.wasm
+          cargo build --target wasm32v1-none --release
+          stellar contract optimize --wasm target/wasm32v1-none/release/badge_contract.wasm
 
       - name: Deploy Contracts
         env:
@@ -62,13 +62,13 @@ jobs:
           # Deploy Escrow
           echo "Deploying Escrow Contract..."
           stellar contract deploy \
-            --wasm ./contracts/escrow/target/wasm32-unknown-unknown/release/escrow_contract.optimized.wasm \
+            --wasm ./contracts/escrow/target/wasm32v1-none/release/escrow_contract.optimized.wasm \
             --source deployer \
             --network testnet
             
           # Deploy Badge
           echo "Deploying Badge Contract..."
           stellar contract deploy \
-            --wasm ./contracts/badge/target/wasm32-unknown-unknown/release/badge_contract.optimized.wasm \
+            --wasm ./contracts/badge/target/wasm32v1-none/release/badge_contract.optimized.wasm \
             --source deployer \
             --network testnet
