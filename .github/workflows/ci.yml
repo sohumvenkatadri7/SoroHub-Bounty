@@ -1,4 +1,4 @@
-name: SoroHub CI Pipeline
+name: SoroHub CI/CD Pipeline
 
 on:
   push:
@@ -68,3 +68,71 @@ jobs:
       - name: Run Badge Tests
         working-directory: ./contracts/badge
         run: cargo test
+
+  deploy-frontend:
+    name: Deploy Next.js to Vercel
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./frontend
+          vercel-args: '--prod'
+
+  deploy-contracts:
+    name: Deploy Contracts to Soroban Testnet
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32v1-none
+
+      - name: Install Stellar CLI
+        run: cargo install --locked stellar-cli --features opt
+
+      - name: Build and Optimize Escrow
+        working-directory: ./contracts/escrow
+        run: |
+          cargo build --target wasm32v1-none --release
+          stellar contract optimize --wasm target/wasm32v1-none/release/escrow_contract.wasm
+
+      - name: Build and Optimize Badge
+        working-directory: ./contracts/badge
+        run: |
+          cargo build --target wasm32v1-none --release
+          stellar contract optimize --wasm target/wasm32v1-none/release/badge_contract.wasm
+
+      - name: Deploy Contracts
+        env:
+          STELLAR_DEPLOYER_SECRET: ${{ secrets.STELLAR_DEPLOYER_SECRET }}
+        run: |
+          if [ -z "$STELLAR_DEPLOYER_SECRET" ]; then
+            echo "Skipping contract deployment because STELLAR_DEPLOYER_SECRET is not set."
+            exit 0
+          fi
+          
+          stellar keys add deployer --secret-key $STELLAR_DEPLOYER_SECRET
+          
+          # Deploy Escrow
+          echo "Deploying Escrow Contract..."
+          stellar contract deploy \
+            --wasm ./contracts/escrow/target/wasm32v1-none/release/escrow_contract.optimized.wasm \
+            --source deployer \
+            --network testnet
+            
+          # Deploy Badge
+          echo "Deploying Badge Contract..."
+          stellar contract deploy \
+            --wasm ./contracts/badge/target/wasm32v1-none/release/badge_contract.optimized.wasm \
+            --source deployer \
+            --network testnet
