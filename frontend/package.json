@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@creit.tech/stellar-wallets-kit": "^2.0.0",
-    "@stellar/stellar-sdk": "^13.0.0",
+    "@stellar/stellar-sdk": "^16.2.0",
     "@vercel/analytics": "^2.0.1",
     "firebase": "^12.16.0",
     "lucide-react": "^1.27.0",

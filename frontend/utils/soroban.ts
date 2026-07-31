@@ -20,7 +20,8 @@ export const server = new rpc.Server(SOROBAN_RPC_URL);
 async function checkWalletMismatch(expectedAddress: string) {
   try {
     if (await isConnected()) {
-      const activePublicKey = await getAddress();
+      const res: any = await getAddress();
+      const activePublicKey = typeof res === 'object' && res !== null ? res.address : res;
       if (activePublicKey && activePublicKey !== expectedAddress) {
         throw new Error(`Wallet mismatch! You connected as ${expectedAddress.slice(0,4)}...${expectedAddress.slice(-4)} but Freighter is set to ${activePublicKey.slice(0,4)}...${activePublicKey.slice(-4)}. Please switch your Freighter account.`);
       }
