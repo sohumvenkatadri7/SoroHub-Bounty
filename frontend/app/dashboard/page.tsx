@@ -162,9 +162,11 @@ export default function DashboardPage() {
 
   const filteredBounties = activeTab === "My Work"
     ? bounties.filter(b => b.assignedTo === address || b.applicantList?.includes(address || ""))
-    : activeTab === "All"
-      ? bounties.filter(b => b.status === "open")
-      : bounties.filter(b => b.status === "open" && b.level === activeTab);
+    : activeTab === "Manage"
+      ? bounties.filter(b => b.funder === address)
+      : activeTab === "All"
+        ? bounties.filter(b => b.status === "open")
+        : bounties.filter(b => b.status === "open" && b.level === activeTab);
 
   // Generate real contribution activity data
   const chartData = useMemo(() => {
@@ -361,13 +363,9 @@ export default function DashboardPage() {
                   <h2 className="text-base font-semibold text-white">Open Bounties</h2>
                   <div className="flex bg-white/5 border border-white/10 rounded-lg p-1 overflow-x-auto">
                     {(address 
-                      ? [
-                          "All", 
-                          "Beginner", 
-                          "Intermediate", 
-                          "Advanced", 
-                          "My Work"
-                        ]
+                      ? userRole === "funder"
+                        ? ["Manage", "All", "Beginner", "Intermediate", "Advanced", "My Work"]
+                        : ["All", "Beginner", "Intermediate", "Advanced", "My Work"]
                       : ["All", "Beginner", "Intermediate", "Advanced"]
                     ).map((tab) => (
                       <button
